@@ -1,0 +1,949 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/08/01/TCP-Flow-Control-And-Linux-Socket-Buffer/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/05/18/6-828-Lab1-Part1-PC-Bootstrap/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/05/28/Add-attribute-information-when-Golang-compiles/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/04/27/Analysis-of-Chinese-Word-Segmentation/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/10/31/Avoid-using-deep-paging-in-Elasticsearch/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/04/02/Browser-Wild-History-UserAgent-Biography/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/10/21/Build-your-own-connection-pool/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/05/03/Building-Reasonable-ES-Indexing-Strategy/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/05/17/Call-C-function-in-Lua/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/05/Computation-of-computers/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/06/06/Continuous-reconstruction/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/11/16/Depth-Java-HashMap/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/12/02/Depth-Java-String/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/11/26/Depth-Java-TreeMap/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/01/26/Distributed-systems-for-fun-and-profit-study-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/09/22/Do-not-read-and-write-to-the-master-nodes-when-using-elasticsearch-py/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/06/22/Elasticsearch's-visual-monitoring/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/10/14/Elasticsearch-adding-nodes-raises-CircuitBreakingException-error/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/05/16/Elasticsearch-performance-comparison-of-different-versions/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/08/16/Elo-rating-system/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/08/09/Ethernet-and-the-Internet/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/05/Finite-automaton/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/07/04/Flow-control-using-OpenResty/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/19/From-16-bit-real-mode-to-32-bit-protected-mode/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/03/22/Future-mode-in-Java/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/08/12/G1-garbage-collector/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/11/08/Geisha-Tiny-Java-MVC-Framework/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/03/12/Gossip-protocol-from-epidemics/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/03/18/How-Elasticsearch-elected-the-master/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/11/12/How-Python-stores-variables-in-closures/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/12/26/How-to-calculate-your-mortgage/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/08/28/How-to-implement-Thread-pool-in-Java/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2021/01/27/How-to-write-unmaintainable-code/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/10/10/How-was-the-first-assembler-implemented/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/06/14/IEEE-Binary-floating-point-arithmetic-standard/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/10/22/Implementing-four-arithmetic-operations-with-golang-compiler/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/10/22/Implementing-four-arithmetic-operations-with-golang-vm/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/10/22/Implementing-four-arithmetic-operations-with-golang/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/05/01/Install-system-on-RaspberryPi-3b/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/27/Intellij-Idea-Modify-the-default-Jsp-page-template/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/02/28/Introduction-to-distributed-systems/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/28/JSP-knowledge-points-summary/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/05/26/K-Nearest-Neighbor-Algorithm-for-Digital-Recognition/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/12/26/Kafka-study-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/01/16/Kudu-study-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2021/01/28/Labor-Arbitration-Diary/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/08/26/Let%E2%80%99s-Build-A-Simple-Interpreter/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/06/17/Log-structured-merge-tree/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/10/28/Lucene-study-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/03/25/Memory-limit-of-the-ES-data-node-to-the-JVM-process/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/01/09/Multiplex-and-non-blocking-and-threading-and-coroutine/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/12/MySQL-basics/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/04/29/MySQL-implementation-of-dual-server-master-slave-synchronization/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/07/12/NanoPi-R2S/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/06/20/Nested-Object-In-Elasticsearch/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/01/18/Network-delay-and-packet-loss/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/08/14/Network-timeout-troubleshooting/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/06/24/Observer-mode/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/07/22/One-CPU-high-load-troubleshooting/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/05/13/Production-environment-elasticsearch-split-brain/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/11/23/Program-compilation-linking-loading-and-running/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/07/Pushdown-automata/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/17/Reads-disk-data-into-memory-via-BIOS-interrupt/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/11/29/Redis-failover/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/10/12/Some-key-technologies-of-Java-Hotspot-G1-GC/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/02/15/Spark-study-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/10/15/Spring-Boot-Starters/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2021/01/27/A-4-bit-Calculator-made-in-cardboard-and-marble/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/08/25/TCP-study-notes-1/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/08/26/TCP-study-notes-2/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/07/16/Talk-about-compilation-principles-1/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/07/30/Talk-about-compilation-principles-2/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/08/20/Talk-about-compilation-principles-3/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/04/28/Talk-about-text-analysis-in-Elasticsearch/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/10/26/Talk-to-the-index-of-the-database/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/05/10/The-adventure-of-three-bytes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/22/The-blog-hosted-on-the-qcloud/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/31/The-blog-started-using-Hexo/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/10/24/The-return-keyword-in-Java/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/12/05/The-%CE%BB-Expression-in-Java/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/13/Through-the-BIOS-interrupt-to-print-out-bootstrap-information-on-the-screen/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/08/04/Troubleshoot-a-slow-query-problem-in-Elasticsearch/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/09/Turing-machine/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/01/28/URL-encode-and-URL-decode/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/11/13/Understand-Java-ClassLoader/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/06/27/Understanding-Query-Then-Fetch-vs-DFS-Query-Then-Fetch/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/04/27/Unicode-and-UTF-8/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/10/25/Use-Bitmap-to-store-large-amounts-of-data/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/07/12/Use-Elasticsearch's-Suggester-to-implement-search-tips/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/10/22/Use-Netty-and-Nginx-to-build-an-online-chat-page/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/06/19/Using-Keepalived-to-make-the-site-highly-available/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/09/30/Using-mobile-phones-for-10-years/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/11/21/Value-passing-in-Java/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2019/03/02/What-is-distributed-hash-table/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/01/12/Write-an-operating-system-from-scratch/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/27/an-Ajax-implementation-of-the-Demo/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/03/23/any-number-is-converted-into-a-binary-tree-by-the-son-sibling-notation/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/08/assembly-language-learning-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2017/09/16/async-and-await/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/09/06/binary-search-tree-with-AVL-tree/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/04/15/build-a-blog-with-Github-Pages-and-set-up-HTTPS-protocol-access/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/26/build-a-log4j-use-environment/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/10/11/build-a-tomcat-service-by-docker/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2018/04/12/business-data-synchronize-sla/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/08/14/centos-the-last-linux-distro-you-should-ever-consider/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/29/clean-code/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/18/compile-and-run-the-C-program-in-Sublime-Text%202/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/01/20/computer-network-notes/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/31/create-a-blog-using-Hexo/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/31/disable-session-in-JSP/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/02/05/finite-state-automaton/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/03/29/gets-the-servlet's-response-and-modifies-its-contents/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/06/01/install-Nginx-and-PHP5-FPM-on-Ubuntu/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/01/introduction-to-JavaWeb-in-the-listener/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/05/introduction-to-filters-in-JavaWeb/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/29/java-annotation-processor/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/29/java-multithreading-in-the-competitive-conditions-the-concept-of-lock-and-synchronization/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/26/log4j-properties-file-configuration/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/10/27/logic-of-chord/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/07/22/peterson-algorithm-for-solving-competition-conditions/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/04/24/producer-consumer-Java-implementation/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/29/servlet-knowledge-points-summary/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/01/05/set-the-website-icon-in-JavaWeb/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/05/08/synchronous-asynchronous-blocking-and-non-blocking/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/03/21/the-Java-infix-expression-turns-the-postfix-expression-and-evaluates-it/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/07/29/the-python-implementationp-of-HashTable/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/23/understanding-the-distinction-and-connection-in-cookie-and-session/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/11/27/use-JUnit-for-unit-testing/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2015/12/29/use-git-add-to-add-empty-folders-to-Git's-staging-area/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/01/06/use-lombox-to-automatically-generate-the-get-and-set-methods-for-the-properties-in-Java-POJO/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2016/04/06/use-ngrok-to-map-web-services-to-the-public-network/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2020/08/10/zhangtielei-blog-distributed-consistency/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/2021/02/08/Build-Samba-service-on-Raspberry-Pi/</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/links/index.html</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.nosuchfield.com/search/index.html</loc>
+    
+    <lastmod>2021-05-18T02:54:03.000Z</lastmod>
+    
+  </url>
+  
+</urlset>

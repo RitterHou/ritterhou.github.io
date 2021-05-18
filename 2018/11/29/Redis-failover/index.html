@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>Redis failover - 御坂研究所</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="数据库,分布式系统"><meta name="description" content="&lt;p&gt;下载Redis源码并编译&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ wget http://download.redis.io/releases/redis-2.8.24.tar.gz
+$ tar -zxvf redis-2.8.24.tar.gz
+$ cd redis-2.8.24
+$ make install
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;编译结束后我们从 &lt;code&gt;src&lt;/code&gt; 文件夹下找到可执行文件 &lt;code&gt;redis-server&lt;/code&gt; 和 &lt;code&gt;redis-sentinel&lt;/code&gt;，redis根目录下的redis.conf和sentinel.conf文件我们接下来也要用到。&lt;/p&gt;
+&lt;h2 id=&quot;主从复制&quot;&gt;&lt;a href=&quot;#主从复制&quot; class=&quot;headerlink&quot; title=&quot;主从复制&quot;&gt;&lt;/a&gt;主从复制&lt;/h2&gt;&lt;p&gt;新建文件夹master、slave1、slave2，把redis-server和redis.conf文件复制到这些文件夹下，目录结构如下&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;.
+├── master
+│   ├─"><link rel="stylesheet" href="/css/style.css"><script async src="https://www.googletagmanager.com/gtag/js?id=UA-109262891-1"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-109262891-1")</script></head><body><div class="container"><header class="header"><div class="blog-title"> <a href="/" class="logo">御坂研究所</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"> <a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"> <a href="/links" class="menu-item-link" data-no-instant>友链</a></li><li class="menu-item"> <a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"> <a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">Redis failover</h1></div><div class="post-meta"> <span class="post-time">2018-11-29</span></div><div class="post-content"><p>下载Redis源码并编译</p><pre><code>$ wget http://download.redis.io/releases/redis-2.8.24.tar.gz
+$ tar -zxvf redis-2.8.24.tar.gz
+$ cd redis-2.8.24
+$ make install
+</code></pre><p>编译结束后我们从 <code>src</code> 文件夹下找到可执行文件 <code>redis-server</code> 和 <code>redis-sentinel</code>，redis根目录下的redis.conf和sentinel.conf文件我们接下来也要用到。</p><h2 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h2><p>新建文件夹master、slave1、slave2，把redis-server和redis.conf文件复制到这些文件夹下，目录结构如下</p><pre><code>.
+├── master
+│   ├── redis-server
+│   └── redis.conf
+├── slave1
+│   ├── redis-server
+│   └── redis.conf
+└── slave2
+    ├── redis-server
+    └── redis.conf
+</code></pre><p>分别修改三个redis.conf中的port</p><table><thead><tr><th style="text-align:center"></th><th style="text-align:center">配置文件</th><th style="text-align:center">端口设置</th></tr></thead><tbody><tr><td style="text-align:center">1</td><td style="text-align:center">master/redis.conf</td><td style="text-align:center">10010</td></tr><tr><td style="text-align:center">2</td><td style="text-align:center">slave1/redis.conf</td><td style="text-align:center">10011</td></tr><tr><td style="text-align:center">3</td><td style="text-align:center">slave2/redis.conf</td><td style="text-align:center">10012</td></tr></tbody></table><p>在所有的 slave 中添加设置，使得slave自动的从master中同步数据</p><pre><code>slaveof 127.0.0.1 10010
+</code></pre><p>先启动master中的redis-server，然后分别启动slave1和slave2中的redis-server</p><pre><code>./redis-server redis.conf
+</code></pre><p>此时master节点可以读写数据，slave会自动的同步master的数据，slave可读不可写。</p><h2 id="master失效选举"><a href="#master失效选举" class="headerlink" title="master失效选举"></a>master失效选举</h2><p>redis-sentinel 会在master失效时使用raft算法自动把一个slave选举为master以实现failover，redis-sentinel本身也需要设置多个节点来避免单点故障，sentinel之间的通信使用gossip协议。</p><p>新建文件夹sentinel1、sentinel2、sentinel3，把redis-sentinel和sentinel.conf文件复制到这些文件夹下，目录结构如下</p><pre><code>.
+├── sentinel1
+│   ├── redis-sentinel
+│   └── sentinel.conf
+├── sentinel2
+│   ├── redis-sentinel
+│   └── sentinel.conf
+└── sentinel3
+    ├── redis-sentinel
+    └── sentinel.conf
+</code></pre><p>设置sentinel.conf中的port</p><table><thead><tr><th style="text-align:center"></th><th style="text-align:center">配置文件</th><th style="text-align:center">端口设置</th></tr></thead><tbody><tr><td style="text-align:center">1</td><td style="text-align:center">sentinel1/sentinel.conf</td><td style="text-align:center">20010</td></tr><tr><td style="text-align:center">2</td><td style="text-align:center">sentinel2/sentinel.conf</td><td style="text-align:center">20011</td></tr><tr><td style="text-align:center">3</td><td style="text-align:center">sentinel3/sentinel.conf</td><td style="text-align:center">20012</td></tr></tbody></table><p>在所有的sentinel.conf中添加设置</p><pre><code># 监控master节点，slave的信息可以从master中获取到
+# 2表示需要有两个sentinel认为master挂了才可以触发重新选举
+sentinel monitor mymaster 127.0.0.1 10010 2
+# 超时检测时间设置为1秒钟
+sentinel down-after-milliseconds mymaster 1000
+</code></pre><p>接下来启动sentient</p><pre><code>./redis-sentinel sentinel.conf
+</code></pre><p>sentinel会自动的组成一个集群，一旦master超过1秒钟没有响应就会把一个slave选举为master。</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.cnblogs.com/zhoujinyi/p/5570024.html" target="_blank" rel="noopener">Redis 复制、Sentinel的搭建和原理说明</a><br><a href="https://www.cnblogs.com/youzhibing/p/8466491.html" target="_blank" rel="noopener">Redis Sentinel安装与部署，实现redis的高可用</a></p><script src="https://cdn.staticfile.org/pangu/3.3.0/pangu.min.js"></script><script>pangu.spacingPage()</script></div><div class="post-copyright"><div> <strong>本文链接：</strong> <span title="Redis failover">http://www.nosuchfield.com/2018/11/29/Redis-failover/</span></div><div> <strong>版权声明：</strong> 本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script>for(var foldThreshold=25,figures=document.querySelectorAll("figure"),i=0;i<figures.length;i++){var figure=figures[i];if(!(figure.querySelectorAll("br").length/2<=foldThreshold)){var language=figure.getAttribute("class"),parent=figure.parentNode,wrapper=document.createElement("details");parent.replaceChild(wrapper,figure);var summary=document.createElement("summary");summary.setAttribute("title","折叠 / 展开"),summary.appendChild(document.createTextNode(language)),wrapper.appendChild(summary),wrapper.appendChild(figure)}}for(var pres=document.querySelectorAll("pre code"),i=0;i<pres.length;i++)if(!(pres[i].textContent.split("\n").length<=foldThreshold)){var pre=pres[i].parentNode,parent=pre.parentNode,wrapper=document.createElement("details");parent.replaceChild(wrapper,pre);var summary=document.createElement("summary");summary.setAttribute("title","折叠 / 展开"),summary.appendChild(document.createTextNode("code block")),wrapper.appendChild(summary),wrapper.appendChild(pre)}</script><script src="https://cdn.staticfile.org/pangu/4.0.7/pangu.min.js"></script><script>pangu.spacingPage()</script><div class="post-footer"><ul class="post-tag-list"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/分布式系统/">分布式系统</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/数据库/">数据库</a></li></ul> <a href="#top" class="top">返回顶部</a></div></article><footer> <span>&copy; 2015 - 2021</span> <span class="author">Derobukal</span> <span style="float:right"><a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>
