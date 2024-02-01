@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>Spring Boot Starters - 御坂研究所</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=JavaWeb,Spring>
+  
+    <meta name="description" content="&lt;p&gt;Spring Boot Starter是在SpringBoot组件中被提出来的一种概念，stackoverflow上面已经有人概括了这个starter是什么东西，想看完整的回答戳&lt;a href=&#34;https://stackoverflow.com/a/28273660&#34;&gt;这里&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Starter POMs are a set of convenient dependency descriptors that you can include in your application. You get a one-stop-shop for all the Spring and related technology that you need, without having to hunt through sample code and copy paste loads of dependency descriptors. For example, if you want to get started using Spring and JPA">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://tam.cdn-go.cn/aegis-sdk/latest/aegis.min.js"></script>
+  <script>
+    const aegis = new Aegis({
+      id: 'Yr5KwSbWDxJ9y9zdqw',
+      uin: '',
+      reportApiSpeed: true,
+      reportAssetSpeed: true,
+      spa: true,
+      hostUrl: 'https://rumt-zh.com'
+    });
+  </script>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="御坂研究所" type="application/atom+xml">
+</head>
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">御坂研究所</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link" data-no-instant>主页</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/links" class="menu-item-link" data-no-instant>友链</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/search" class="menu-item-link" data-no-instant>搜索</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">Spring Boot Starters</h1>
+  </div>
+   <div class="post-meta">
+    <span class="post-time">2017-10-15</span>
+  </div>
+  <div class="post-content">
+    <p>Spring Boot Starter是在SpringBoot组件中被提出来的一种概念，stackoverflow上面已经有人概括了这个starter是什么东西，想看完整的回答戳<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/28273660">这里</a></p>
+<blockquote>
+<p>Starter POMs are a set of convenient dependency descriptors that you can include in your application. You get a one-stop-shop for all the Spring and related technology that you need, without having to hunt through sample code and copy paste loads of dependency descriptors. For example, if you want to get started using Spring and JPA for database access, just include the spring-boot-starter-data-jpa dependency in your project, and you are good to go.</p>
+</blockquote>
+<p>大概意思就是说starter是一种对依赖的synthesize（合成），这是什么意思呢？我可以举个例子来说明。</p>
+<h3 id="传统的做法"><a href="#传统的做法" class="headerlink" title="传统的做法"></a>传统的做法</h3><p>在没有starter之前，假如我想要在Spring中使用jpa，那我可能需要做以下操作：</p>
+<ol>
+<li>在Maven中引入使用的数据库的依赖（即JDBC的jar）</li>
+<li>引入jpa的依赖</li>
+<li>在xxx.xml中配置一些属性信息</li>
+<li>反复的调试直到可以正常运行</li>
+</ol>
+<p>需要注意的是，这里操作在我们<em><strong>每次新建一个需要用到jpa的项目的时候都需要重复的做一次</strong></em>。也许你在第一次自己建立项目的时候是在Google上自己搜索了一番，花了半天时间解决掉了各种奇怪的问题之后，jpa终于能正常运行了。有些有经验的人会在OneNote上面把这次建立项目的过程给记录下来，包括操作的步骤以及需要用到的配置文件的内容，在下一次再创建jpa项目的时候，就不需要再次去Google了，只需要照着笔记来，之后再把所有的配置文件copy&amp;paste就可以了。</p>
+<p>像上面这样的操作也不算不行，事实上我们在没有starter之前都是这么干的，但是这样做有几个问题：</p>
+<ol>
+<li>如果过程比较繁琐，这样一步步操作会增加出错的可能性</li>
+<li>不停地copy&amp;paste不符合<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">Don’t repeat yourself</a>精神</li>
+<li>在第一次配置的时候（尤其如果开发者比较小白），需要花费掉大量的时间</li>
+</ol>
+<h3 id="使用Spring-Boot-Starter提升效率"><a href="#使用Spring-Boot-Starter提升效率" class="headerlink" title="使用Spring Boot Starter提升效率"></a>使用Spring Boot Starter提升效率</h3><p>starter的主要目的就是为了解决上面的这些问题。</p>
+<p>starter的理念：starter会把所有用到的依赖都给包含进来，避免了开发者自己去引入依赖所带来的麻烦。需要注意的是不同的starter是为了解决不同的依赖，所以它们内部的实现可能会有很大的差异，例如jpa的starter和Redis的starter可能实现就不一样，这是因为starter的本质在于synthesize，这是一层在逻辑层面的抽象，也许这种理念有点类似于Docker，因为它们都是在做一个“包装”的操作，如果你知道Docker是为了解决什么问题的，也许你可以用Docker和starter做一个类比。</p>
+<p>starter的实现：虽然不同的starter实现起来各有差异，但是他们基本上都会使用到两个相同的内容：ConfigurationProperties和AutoConfiguration。因为Spring Boot坚信“约定大于配置”这一理念，所以我们使用ConfigurationProperties来保存我们的配置，并且这些配置都可以有一个默认值，即在我们没有主动覆写原始配置的情况下，默认值就会生效，这在很多情况下是非常有用的。除此之外，starter的ConfigurationProperties还使得所有的配置属性被聚集到一个文件中（一般在resources目录下的application.properties），这样我们就告别了Spring项目中XML地狱。</p>
+<p>starter的整体逻辑：<br><img src="/images/20171015/20171015121848.png"></p>
+<p>上面的starter依赖的jar和我们自己手动配置的时候依赖的jar并没有什么不同，所以<u>我们可以认为starter其实是把这一些繁琐的配置操作交给了自己，而把简单交给了用户</u>。除了帮助用户去除了繁琐的构建操作，在“约定大于配置”的理念下，ConfigurationProperties还帮助用户减少了无谓的配置操作。并且因为 <code>application.properties</code> 文件的存在，即使需要自定义配置，所有的配置也只需要在一个文件中进行，使用起来非常方便。</p>
+<p>了解了starter其实就是帮助用户简化了配置的操作之后，要理解starter和被配置了starter的组件之间并不是竞争关系，而是辅助关系，即我们可以给一个组件创建一个starter来让最终用户在使用这个组件的时候更加的简单方便。基于这种理念，我们可以给任意一个现有的组件创建一个starter来让别人在使用这个组件的时候更加的简单方便，事实上Spring Boot团队已经帮助现有大部分的流行的组件创建好了它们的starter，你可以在<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/tree/v1.5.7.RELEASE/spring-boot-starters">这里</a>查看这些starter的列表。</p>
+<h3 id="创建自己的Spring-Boot-Starter"><a href="#创建自己的Spring-Boot-Starter" class="headerlink" title="创建自己的Spring Boot Starter"></a>创建自己的Spring Boot Starter</h3><p>如果你想要自己创建一个starter，那么基本上包含以下几步<br>0. 创建一个starter项目，关于项目的命名你可以参考<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.0.0.M5/reference/htmlsingle/#boot-features-custom-starter-naming">这里</a></p>
+<ol>
+<li>创建一个ConfigurationProperties用于保存你的配置信息（如果你的项目不使用配置信息则可以跳过这一步，不过这种情况非常少见）</li>
+<li>创建一个AutoConfiguration，引用定义好的配置信息；在AutoConfiguration中实现所有starter应该完成的操作，并且把这个类加入spring.factories配置文件中进行声明</li>
+<li>打包项目，之后在一个SpringBoot项目中引入该项目依赖，然后就可以使用该starter了</li>
+</ol>
+<p>我们来看一个例子（例子的完整代码位于<a target="_blank" rel="noopener" href="https://github.com/RitterHou/learn-spring-boot-starter">https://github.com/RitterHou/learn-spring-boot-starter</a>）</p>
+<p>首先新建一个Maven项目，设置 <code>pom.xml</code> 文件如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>http-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 自定义starter都应该继承自该依赖 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 如果自定义starter本身需要继承其它的依赖，可以参考 https://stackoverflow.com/a/21318359 解决 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starters<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 自定义starter依赖此jar包 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- lombok用于自动生成get、set方法 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.16.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>创建proterties类来保存配置信息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;http&quot;)</span> <span class="comment">// 自动获取配置文件中前缀为http的属性，把值传入对象参数</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HttpProperties</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果配置文件中配置了http.url属性，则该默认属性会被覆盖</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://www.baidu.com/&quot;</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个类就是定义了一个属性，其默认值是 <code>http://www.baidu.com/</code>，我们可以通过在 <code>application.properties</code> 中添加配置 <code>http.url=https://www.zhihu.com</code> 来覆盖参数的值。</p>
+<p>创建业务类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HttpClient</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String url;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据url获取网页数据</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getHtml</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="built_in">this</span>.url);</span><br><span class="line">            <span class="type">URLConnection</span> <span class="variable">urlConnection</span> <span class="operator">=</span> url.openConnection();</span><br><span class="line">            <span class="type">BufferedReader</span> <span class="variable">br</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(urlConnection.getInputStream(), <span class="string">&quot;utf-8&quot;</span>));</span><br><span class="line">            <span class="type">String</span> <span class="variable">line</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">            <span class="keyword">while</span> ((line = br.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">                sb.append(line).append(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> sb.toString();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;error&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个业务类的操作非常简单，只包含了一个 <code>url</code> 属性和一个 <code>getHtml</code> 方法，用于获取一个网页的HTML数据，读者看看就懂了。</p>
+<p>创建AutoConfiguration</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(HttpProperties.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HttpAutoConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> HttpProperties properties; <span class="comment">// 使用配置</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在Spring上下文中创建一个对象</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> HttpClient <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">HttpClient</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpClient</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> properties.getUrl();</span><br><span class="line">        client.setUrl(url);</span><br><span class="line">        <span class="keyword">return</span> client;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的AutoConfiguration中我们实现了自己要求：在Spring的上下文中创建了一个HttpClient类的bean，并且我们把properties中的一个参数赋给了该bean。<br>关于<code>@ConditionalOnMissingBean</code> 这个注解，它的意思是在该bean不存在的情况下此方法才会执行，这个相当于开关的角色，更多关于开关系列的注解可以参考<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.0.0.M5/reference/htmlsingle/#boot-features-condition-annotations">这里</a>。</p>
+<p>最后，我们在 <code>resources</code> 文件夹下新建目录 <code>META-INF</code>，在目录中新建 <code>spring.factories</code> 文件，并且在 <code>spring.factories</code> 中配置AutoConfiguration：</p>
+<pre><code>org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.nosuchfield.httpstarter.HttpAutoConfiguration
+</code></pre>
+<p>到此，我们的starter已经创建完毕了，使用Maven打包该项目。之后创建一个SpringBoot项目，在项目中添加我们之前打包的starter作为依赖，然后使用SringBoot来运行我们的starter，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RunIt</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> HttpClient httpClient;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hello</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(httpClient.getHtml());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>正常情况下此方法的执行会打印出url <code>http://www.baidu.com/</code> 的HTML内容，之后我们在application.properties中加入配置：</p>
+<pre><code>http.url=https://www.zhihu.com/
+</code></pre>
+<p>再次运行程序，此时打印的结果应该是知乎首页的HTML了，证明properties中的数据确实被覆盖了。</p>
+
+  </div>
+  <div class="post-copyright">
+    <div>
+      <strong>本文链接：</strong>
+      <span title="Spring Boot Starters">https://www.nosuchfield.com/2017/10/15/Spring-Boot-Starters/</span>
+    </div>
+    <div>
+      <strong>版权声明： </strong>
+      本博客所有文章均采用
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！
+    </div>
+  </div>
+  <!-- 自动折叠代码块 -->
+  <style>
+    summary {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    summary:focus {
+      outline: none;
+    }
+  </style>
+  <script>
+    var foldThreshold = 25; // 触发折叠的行数阈值
+    if (new URLSearchParams(window.location.search).get('print') !== null) {
+        foldThreshold = Number.MAX_VALUE
+    }
+
+    var figures = document.querySelectorAll('figure');
+    for (var i = 0; i < figures.length; i++) {
+        var figure = figures[i];
+
+        if (figure.querySelectorAll('br').length / 2 <= foldThreshold) {
+            continue;
+        }
+        var figcaption = figure.querySelector('figcaption') || 0;
+        if (figcaption.innerHTML == '<span>flat</span>') {
+            figcaption.remove();
+            continue;
+        }
+
+        var language = figure.getAttribute('class').replace('highlight ', '');
+
+        var parent = figure.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, figure);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看' + language + '代码'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(figure);
+    }
+
+    var pres = document.querySelectorAll('pre code');
+    for (var i = 0; i < pres.length; i++) {
+        if (pres[i].textContent.split('\n').length <= foldThreshold) {
+            continue;
+        }
+
+        var pre = pres[i].parentNode;
+        var parent = pre.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, pre);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看代码块'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(pre);
+    }
+
+    window.onbeforeprint = (event) => {
+        let details = document.querySelectorAll('details')
+        for (let detail of details) {
+            if (detail.querySelector('pre code')) {
+                detail.parentNode.replaceChild(detail.querySelector('pre'), detail)
+            }
+            if (detail.querySelector('figure')) {
+                detail.parentNode.replaceChild(detail.querySelector('figure'), detail)
+            }
+        }
+    }
+  </script>
+  
+  <!-- giscus评论设置 -->
+  <script src="https://giscus.app/client.js"
+    data-repo="RitterHou/ritterhou.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NjI1MjM5Ng=="
+    data-category="Announcements"
+    data-category-id="DIC_kwDOAsHBbM4Cc3XV"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light"
+    data-lang="zh-CN"
+    crossorigin="anonymous"
+    data-loading="lazy"
+    async>
+  </script>
+  <!-- 自动添加空格来帮助排版 -->
+  <script src="https://cdn.staticfile.org/pangu/4.0.7/pangu.min.js"></script>
+  <script>pangu.spacingPage()</script>
+  <script>
+    // 回到顶部
+    function backToTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }
+  </script>
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/JavaWeb/" rel="tag">JavaWeb</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+    
+    <span onclick="backToTop()" class="top">返回顶部</span>
+  </div>
+  
+</article>
+<footer>
+  <span>&copy; 2015 - 2024</span>
+  <span class="author">Derobukal</span>
+  <span style="float: right;">
+    <span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral">
+        <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a>
+    <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a>
+  </span>
+</footer>
+    </div>
+  </body>
+  
+  
+</html>
