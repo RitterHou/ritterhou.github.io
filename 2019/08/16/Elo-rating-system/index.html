@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>电影《社交网络》中的Elo打分算法 - 御坂研究所</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=算法>
+  
+    <meta name="description" content="&lt;p&gt;在电影《The Social Network》里，马克使用了爱德华给象棋选手评级的算法来对哈佛的女生进行打分。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/images/20190816/The.Social.Network.jpg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;截图出现在电影《社交网络》的13分02秒&lt;/p&gt;
+&lt;p&gt;这个算法叫做Elo rating system，是由美国物理学家Arpad Elo发明的一个用于对各种竞技行为进行评分的算法。不过在社交网络中爱德华在窗户上写的公式是错的，正确的公式如下&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/images/20190816/ea.svg&#34;&gt;&lt;br&gt;&lt;img src=&#34;/images/20190816/eb.svg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;这两个公式分别用于计算选手A和选手B的期望胜率E&lt;sub&gt;A&lt;/sub&gt;和E&lt;sub&gt;B&lt;/sub&gt;，R&lt;sub&gt;A&lt;/sub&gt;和R&lt;sub&gt;B&lt;/sub&gt;分别代表了A和B的当前得分。有了期望胜率就可以计算出选手A和选手B的最新打分。计算打分的公式在电影中没有给出，这里给出使用期望胜率计算打分的公式如下&lt;/p&gt;
+&lt;p&gt;&lt;img">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://tam.cdn-go.cn/aegis-sdk/latest/aegis.min.js"></script>
+  <script>
+    const aegis = new Aegis({
+      id: 'Yr5KwSbWDxJ9y9zdqw',
+      uin: '',
+      reportApiSpeed: true,
+      reportAssetSpeed: true,
+      spa: true,
+      hostUrl: 'https://rumt-zh.com'
+    });
+  </script>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="御坂研究所" type="application/atom+xml">
+</head>
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">御坂研究所</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link" data-no-instant>主页</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/links" class="menu-item-link" data-no-instant>友链</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/search" class="menu-item-link" data-no-instant>搜索</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">电影《社交网络》中的Elo打分算法</h1>
+  </div>
+   <div class="post-meta">
+    <span class="post-time">2019-08-16</span>
+  </div>
+  <div class="post-content">
+    <p>在电影《The Social Network》里，马克使用了爱德华给象棋选手评级的算法来对哈佛的女生进行打分。</p>
+<p><img src="/images/20190816/The.Social.Network.jpg"></p>
+<p>截图出现在电影《社交网络》的13分02秒</p>
+<p>这个算法叫做Elo rating system，是由美国物理学家Arpad Elo发明的一个用于对各种竞技行为进行评分的算法。不过在社交网络中爱德华在窗户上写的公式是错的，正确的公式如下</p>
+<p><img src="/images/20190816/ea.svg"><br><img src="/images/20190816/eb.svg"></p>
+<p>这两个公式分别用于计算选手A和选手B的期望胜率E<sub>A</sub>和E<sub>B</sub>，R<sub>A</sub>和R<sub>B</sub>分别代表了A和B的当前得分。有了期望胜率就可以计算出选手A和选手B的最新打分。计算打分的公式在电影中没有给出，这里给出使用期望胜率计算打分的公式如下</p>
+<p><img src="/images/20190816/ra.svg"></p>
+<p>计算打分公式的各个参数含义：</p>
+<table>
+<thead>
+<tr>
+<th align="left"><div style="width: 50px;">参数</div></th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">R’<sub>A</sub></td>
+<td align="left">选手A的最新打分</td>
+</tr>
+<tr>
+<td align="left">R<sub>A</sub></td>
+<td align="left">选手A在这轮竞技之前的打分</td>
+</tr>
+<tr>
+<td align="left">K</td>
+<td align="left">一个正整数因子，用于平衡不同选手的能力，K越大得到的打分越高；有时候可以让种子选手的K稍低，普通选手的K稍高</td>
+</tr>
+<tr>
+<td align="left">S<sub>A</sub></td>
+<td align="left">选手的输赢情况，胜&#x3D;1，和&#x3D;0.5，负&#x3D;0</td>
+</tr>
+<tr>
+<td align="left">E<sub>A</sub></td>
+<td align="left">在上一个公式中计算的选手期望胜率</td>
+</tr>
+</tbody></table>
+<p>有了这两个公式，我们就可以实现对竞技行为的打分了，让我们使用Python把这两个公式实现出来。</p>
+<p>计算期望胜率</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">expected_score</span>(<span class="params">ra, rb</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    计算a的期望胜率ea</span></span><br><span class="line"><span class="string">    :param ra: a的当前得分</span></span><br><span class="line"><span class="string">    :param rb: b的当前得分</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> / (<span class="number">1</span> + <span class="built_in">pow</span>(<span class="number">10</span>, (rb - ra) / <span class="number">400</span>))</span><br></pre></td></tr></table></figure>
+
+<p>计算竞技之后的得分</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">rank_score</span>(<span class="params">rank, k, sa, ea</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    计算实际得分</span></span><br><span class="line"><span class="string">    :param rank:     这轮竞技之前的打分</span></span><br><span class="line"><span class="string">    :param k:        K因子针对不同的玩家可能不同</span></span><br><span class="line"><span class="string">    :param sa:       这一局的输赢得分，胜=1，和=0.5，负=0</span></span><br><span class="line"><span class="string">    :param ea:       期望得分，即expected_score方法的计算结果</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> rank + k * (sa - ea)</span><br></pre></td></tr></table></figure>
+<p>通过以上的代码我们可以看到，Elo评分算法还是比较简单的，只需要分为计算期望胜率和计算得分这两步。虽然算法本身比较简单，但是这不影响Elo成为当今对弈水平评估的公认的权威方法。不仅传统的国际象棋、围棋、足球、篮球等项目会使用它，一些新兴的线上电子竞技游戏也会使用Elo来作为评分算法。</p>
+<p>为了模仿电影《社交网络》中的FaceMash网站，我抓取了一些演员的照片并放在下方，你可以通过不断地对演员进行选择来影响演员的最终打分</p>
+
+<p>
+<strong>如果图片无法正常显示请尝试<span style="color: red; cursor: pointer;" onclick="(function(){window.location.reload();return false;})();return false;" title="刷新当前页面">刷新页面</span></strong>
+</p>
+<style>
+    .images {
+        float: left;
+    }
+
+    .image {
+        width: 9%;
+        float: left;
+        margin-right: 1%;
+        margin-top: 5px;
+    }
+
+    .image img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .image .rank {
+        font-size: 12px;
+    }
+
+    .players {
+        margin-top: 30px;
+    }
+
+    .player {
+        float: left;
+        width: 25%;
+        cursor: pointer;
+    }
+
+    .player img {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+<div class="images"></div>
+<div style="clear: left;"></div>
+<div style="font-size: 30px; margin-top: 25px; text-align: center;">Which one is more attractive, left or right!</div>
+<div class="players">
+    <div class="player" style="margin-left: 20%;">
+        <img src="" onclick="selectPlayer(this.player)" title="左边更漂亮" />
+    </div>
+    <div class="player" style="margin-left: 10%;">
+        <img src="" onclick="selectPlayer(this.player)" title="右边更漂亮" />
+    </div>
+</div>
+<div style="clear: left;"></div>
+<button onclick="autoRun()" id="auto" style="margin-top: 20px; float: right;">自动模拟选择</button>
+<div style="clear: right;"></div>
+<script>
+    // 初始化显示所有的图片
+    function initImages() {
+        let images = ''
+        for (let i = 0; i < 30; i++) {
+            if (i % 10 == 0) {
+                images += '<div style="clear: left;"></div>'
+            }
+            images += `<div class="image">
+                <img src="/images/20190816/${i}.webp" />
+                <div class="rank" id="${i}">1400.00000</div>
+            </div>`
+        }
+        document.querySelector('.images').innerHTML = images
+    }
+    initImages()
+
+    // 根据得分对元素进行排序
+    function sortImages() {
+        let images = document.querySelectorAll('.images .image')
+        let imagesArray = Array.from(images)
+
+        function sorter(a, b) {
+            if (parseFloat(a.innerText) < parseFloat(b.innerText)) return 1
+            if (parseFloat(b.innerText) < parseFloat(a.innerText)) return -1
+        }
+
+        let sorted = imagesArray.sort(sorter)
+
+        for (let i = 0; i < sorted.length; i++) {
+            if (i % 10 == 0) {
+                let d = document.createElement('div')
+                d.setAttribute('style', 'clear: left;')
+                document.querySelector('.images').appendChild(d)
+            }
+            document.querySelector('.images').appendChild(sorted[i])
+        }
+    }
+
+    // 随机生成一个范围内的整数 [min, max)
+    function randomInt(min, max) {
+        return (Math.random() * (max - min) + min) | 0
+    }
+
+    // 计算期望胜率
+    function expected_score(ra, rb) {
+        return 1.0 / (1.0 + Math.pow(10.0, (rb - ra) / 400.0))
+    }
+
+    // 计算最新打分
+    function rank_score(rank, k, sa, ea) {
+        return rank + k * (sa - ea)
+    }
+
+    // 更换待选则的玩家
+    let lastPlayerA, lastPlayerB
+    function changePlayers() {
+        // console.log(`lastPlayerA: ${lastPlayerA}, lastPlayerB: ${lastPlayerB}`)
+
+        let a, b
+        while (true) { // 防止和上一次的照片重复
+            a = randomInt(0, 30)
+            b = randomInt(0, 30)
+            if (a != b && a != lastPlayerA && b != lastPlayerB && a != lastPlayerB && b != lastPlayerA) {
+                lastPlayerA = a
+                lastPlayerB = b
+                break
+            }
+        }
+        // console.log(`a: ${a}, b: ${b}`)
+
+        let players = document.querySelectorAll('.players .player img')
+        players[0].src = `/images/20190816/${a}.webp`
+        players[0].player = a
+        players[1].src = `/images/20190816/${b}.webp`
+        players[1].player = b
+
+        sortImages() // 更换后进行排序
+    }
+
+    // 选择玩家
+    function selectPlayer(playerId) {
+        // console.log(playerId)
+
+        let sa, sb
+        // 选择了A
+        if (playerId == lastPlayerA) {
+            sa = 1
+            sb = 0
+        } else {
+            sa = 0
+            sb = 1
+        }
+
+        let a = document.getElementById(lastPlayerA)
+        let ra = parseFloat(a.innerText)
+
+        let b = document.getElementById(lastPlayerB)
+        let rb = parseFloat(b.innerText)
+
+        let ea = expected_score(ra, rb)
+        let eb = expected_score(rb, ra)
+
+        let ra1 = rank_score(ra, 10, sa, ea)
+        let rb1 = rank_score(rb, 10, sb, eb)
+
+        // console.log(`ra: ${ra}, rb: ${rb}`)
+        ra1 = ra1.toFixed(5)
+        rb1 = rb1.toFixed(5)
+
+        a.innerText = ra1
+        b.innerText = rb1
+
+        changePlayers() // 选择完毕后更新照片
+    }
+
+    changePlayers() // 默认第一次需要更新照片
+
+    // 自动模拟选择
+    let interval
+    function autoRun() {
+        let auto = document.getElementById('auto')
+        if (auto.innerText == '自动模拟选择') {
+            let intervalTime = prompt('自动模拟选择间隔（毫秒）', '600')
+            if (intervalTime === null) {
+                return
+            }
+            if (intervalTime && /^\d+$/.test(intervalTime)) {
+                auto.innerText = '停止模拟选择'
+                interval = setInterval(function () {
+                    let players = document.querySelectorAll('.players .player img')
+                    let r = randomInt(0, 2)
+                    // console.log(`随机模拟选择：${r}`)
+                    players[r].click()
+                }, parseInt(intervalTime))
+            } else {
+                alert('“' + intervalTime + '” 不是有效的正整数')
+            }
+        } else {
+            auto.innerText = '自动模拟选择'
+            clearInterval(interval)
+        }
+    }
+</script>
+
+
+<p>以上就是模仿了FaceMash网站所实现的评分系统，初始时所有人的得分都是1400分，用户会随机的获取两张照片并需要在这之间选择他认为更好看的一张。经过一段时间的评分操作，所有照片的分数将会发生变化，更好看的照片会偏向于拥有更高的得分。</p>
+<p>由于数据只存在于本地，你可以使用<strong>自动模拟选择</strong>按钮来模拟这个打分过程。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://sylvanassun.github.io/2017/07/19/2017-07-19-FaceMash/">电影《社交网络》中的“FaceMash”算法</a><br><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Elo_rating_system">Elo rating system</a><br><a target="_blank" rel="noopener" href="https://movie.douban.com/subject/3205624/">社交网络 The Social Network (2010)</a></p>
+
+  </div>
+  <div class="post-copyright">
+    <div>
+      <strong>本文链接：</strong>
+      <span title="电影《社交网络》中的Elo打分算法">https://www.nosuchfield.com/2019/08/16/Elo-rating-system/</span>
+    </div>
+    <div>
+      <strong>版权声明： </strong>
+      本博客所有文章均采用
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！
+    </div>
+  </div>
+  <!-- 自动折叠代码块 -->
+  <style>
+    summary {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    summary:focus {
+      outline: none;
+    }
+  </style>
+  <script>
+    var foldThreshold = 25; // 触发折叠的行数阈值
+    if (new URLSearchParams(window.location.search).get('print') !== null) {
+        foldThreshold = Number.MAX_VALUE
+    }
+
+    var figures = document.querySelectorAll('figure');
+    for (var i = 0; i < figures.length; i++) {
+        var figure = figures[i];
+
+        if (figure.querySelectorAll('br').length / 2 <= foldThreshold) {
+            continue;
+        }
+        var figcaption = figure.querySelector('figcaption') || 0;
+        if (figcaption.innerHTML == '<span>flat</span>') {
+            figcaption.remove();
+            continue;
+        }
+
+        var language = figure.getAttribute('class').replace('highlight ', '');
+
+        var parent = figure.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, figure);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看' + language + '代码'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(figure);
+    }
+
+    var pres = document.querySelectorAll('pre code');
+    for (var i = 0; i < pres.length; i++) {
+        if (pres[i].textContent.split('\n').length <= foldThreshold) {
+            continue;
+        }
+
+        var pre = pres[i].parentNode;
+        var parent = pre.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, pre);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看代码块'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(pre);
+    }
+
+    window.onbeforeprint = (event) => {
+        let details = document.querySelectorAll('details')
+        for (let detail of details) {
+            if (detail.querySelector('pre code')) {
+                detail.parentNode.replaceChild(detail.querySelector('pre'), detail)
+            }
+            if (detail.querySelector('figure')) {
+                detail.parentNode.replaceChild(detail.querySelector('figure'), detail)
+            }
+        }
+    }
+  </script>
+  
+  <!-- giscus评论设置 -->
+  <script src="https://giscus.app/client.js"
+    data-repo="RitterHou/ritterhou.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NjI1MjM5Ng=="
+    data-category="Announcements"
+    data-category-id="DIC_kwDOAsHBbM4Cc3XV"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light"
+    data-lang="zh-CN"
+    crossorigin="anonymous"
+    data-loading="lazy"
+    async>
+  </script>
+  <!-- 自动添加空格来帮助排版 -->
+  <script src="/js/pangu.min.js"></script>
+  <script>pangu.spacingPage()</script>
+  <script>
+    // 回到顶部
+    function backToTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }
+  </script>
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    
+    <span onclick="backToTop()" class="top">返回顶部</span>
+  </div>
+  
+</article>
+<footer>
+  <span>&copy; 2015 - 2025</span>
+  <span class="author">Derobukal</span>
+  <span style="float: right;">
+    <span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral">
+        <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a>
+    <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a>
+  </span>
+</footer>
+    </div>
+  </body>
+  
+  
+</html>
