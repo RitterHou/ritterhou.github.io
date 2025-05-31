@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>ComfyUI的操作与使用 - 侯锐的思考与分享</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=机器学习,ComfyUI,AI,图像生成,Stable Diffusion>
+  
+    <meta name="description" content="&lt;p&gt;&lt;em&gt;简单起见，又或者是没有N卡或者显卡的配置比较低，可以使用&lt;a href=&#34;https://console.cloud.tencent.com/hai&#34;&gt;腾讯云HAI&lt;/a&gt;直接搭建ComfyUI服务。&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&#34;入门使用&#34;&gt;&lt;a href=&#34;#入门使用&#34; class=&#34;headerlink&#34; title=&#34;入门使用&#34;&gt;&lt;/a&gt;入门使用&lt;/h3&gt;&lt;p&gt;可以先clear掉当前的workflow，之后右键新建模块。&lt;/p&gt;
+&lt;p&gt;首先需要新建一个采样器（KSampler），采样器的配置如下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;参数&lt;/th&gt;
+&lt;th&gt;值&lt;/th&gt;
+&lt;th&gt;说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;seed&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;随机种子，控制生成结果的随机性。相同种子会产生相同结果&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;control_after_generate&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;rando">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://tam.cdn-go.cn/aegis-sdk/latest/aegis.min.js"></script>
+  <script>
+    const aegis = new Aegis({
+      id: 'Yr5KwSbWDxJ9y9zdqw',
+      uin: '',
+      reportApiSpeed: true,
+      reportAssetSpeed: true,
+      spa: true,
+      hostUrl: 'https://rumt-zh.com'
+    });
+  </script>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml">
+</head>
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">侯锐的思考与分享</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link" data-no-instant>主页</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/search" class="menu-item-link" data-no-instant>搜索</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">ComfyUI的操作与使用</h1>
+  </div>
+   <div class="post-meta">
+    <span class="post-time">2025-03-31</span>
+  </div>
+  <div class="post-content">
+    <p><em>简单起见，又或者是没有N卡或者显卡的配置比较低，可以使用<a target="_blank" rel="noopener" href="https://console.cloud.tencent.com/hai">腾讯云HAI</a>直接搭建ComfyUI服务。</em></p>
+<h3 id="入门使用"><a href="#入门使用" class="headerlink" title="入门使用"></a>入门使用</h3><p>可以先clear掉当前的workflow，之后右键新建模块。</p>
+<p>首先需要新建一个采样器（KSampler），采样器的配置如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>seed</strong></td>
+<td>0</td>
+<td>随机种子，控制生成结果的随机性。相同种子会产生相同结果</td>
+</tr>
+<tr>
+<td><strong>control_after_generate</strong></td>
+<td>randomize</td>
+<td>生成后种子控制方式：randomize(随机化)、increment(递增)、decrement(递减)、fixed(固定)</td>
+</tr>
+<tr>
+<td><strong>steps</strong></td>
+<td>20</td>
+<td>采样步数，通常15-30步较为合适。步数越多质量越好但耗时更长</td>
+</tr>
+<tr>
+<td><strong>cfg</strong></td>
+<td>8.000</td>
+<td>CFG引导强度，控制AI对提示词的遵循程度。范围1-20，推荐7-12</td>
+</tr>
+<tr>
+<td><strong>sampler_name</strong></td>
+<td>euler</td>
+<td>采样算法：euler、euler_a、dpm_2、dpm_2_ancestral、lms、ddim等</td>
+</tr>
+<tr>
+<td><strong>scheduler</strong></td>
+<td>normal</td>
+<td>调度器类型：normal、karras、exponential、sgm_uniform等</td>
+</tr>
+<tr>
+<td><strong>denoise</strong></td>
+<td>1.000</td>
+<td>去噪强度，1.0为完全去噪，0.0为不去噪。图生图时可调节此值</td>
+</tr>
+</tbody></table>
+<p>采样器的model可以选择Load Checkpoint。<br>positive是正向提示词，negative是反向提示词，都可以选择CLIPTextEncode。为了方便区分，可以给prompt修改一个有意义的标题。<br>latent_image可以设置图片的选项，例如EmptyLatentImage。<br>LATENT可以选择VAE Decode模块，然后可以添加一个图片预览模块。</p>
+<h3 id="多图合并，使用同一个背景"><a href="#多图合并，使用同一个背景" class="headerlink" title="多图合并，使用同一个背景"></a>多图合并，使用同一个背景</h3><p>输出大小设置为图片背景总大小。<br>图片正向prompt输出拖拽，然后添加Conditioning(Set Area)节点，在其中设置图片的大小和图片在背景画布中的位置。<br>使用ConditioningCombine节点，合并多个Conditioning节点，之后把合并节点的输出连接到KSample。<br>但是，如果是单纯两个prompt直接连到采样器，两张图片会很割裂。解决办法是再新建一个prompt，之后把两张图片的输出和这个prompt使用一个combine进行合并，之后合并结果再输出到采样器。</p>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><p><strong>CheckPoints（检查点模型）</strong>是Stable Diffusion的核心基础模型，包含了完整的图像生成能力。它是一个预训练的神经网络模型，决定了生成图像的整体风格、质量和特征。</p>
+<h4 id="常用CheckPoints模型类型："><a href="#常用CheckPoints模型类型：" class="headerlink" title="常用CheckPoints模型类型："></a>常用CheckPoints模型类型：</h4><table>
+<thead>
+<tr>
+<th>模型类型</th>
+<th>特点</th>
+<th>适用场景</th>
+<th>推荐模型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SD 1.5系列</strong></td>
+<td>经典基础模型，兼容性好</td>
+<td>入门学习，插件丰富</td>
+<td><code>v1-5-pruned-emaonly.ckpt</code></td>
+</tr>
+<tr>
+<td><strong>SDXL系列</strong></td>
+<td>更高分辨率，质量更好</td>
+<td>高质量出图</td>
+<td><code>sd_xl_base_1.0.safetensors</code></td>
+</tr>
+<tr>
+<td><strong>写实人像</strong></td>
+<td>专注真实人物生成</td>
+<td>人像摄影、写实风格</td>
+<td><code>realisticVisionV60B1_v51VAE.safetensors</code></td>
+</tr>
+<tr>
+<td><strong>动漫二次元</strong></td>
+<td>卡通动漫风格</td>
+<td>动漫插画、角色设计</td>
+<td><code>anything-v5-PrtRE.safetensors</code></td>
+</tr>
+<tr>
+<td><strong>艺术绘画</strong></td>
+<td>艺术风格强烈</td>
+<td>创意艺术、概念设计</td>
+<td><code>dreamshaper_8.safetensors</code></td>
+</tr>
+<tr>
+<td><strong>建筑风景</strong></td>
+<td>专注场景和建筑</td>
+<td>建筑设计、风景画</td>
+<td><code>architectureExterior_v40.safetensors</code></td>
+</tr>
+</tbody></table>
+<p>模型文件格式：<code>.ckpt</code>：早期格式，文件较大；<code>.safetensors</code>：更安全的格式，加载速度快，推荐使用；<code>.pt</code>：PyTorch原生格式</p>
+<p>使用LoRA模型：在主模型的MODEL节点拖拽，可以新增LoRA节点，之后把LoRA的模型替代主模型连接到采样器上面。同样的，主模型的CLIP需要连接到LoRA上面，之后把正向prompt连接到LoRA就可以了（反向prompt还是连接在CheckPoint的CLIP上面）。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1VG411d7Se">一口气学ComfyUI系列教程</a></p>
+
+  </div>
+  <div class="post-copyright">
+    <div>
+      <strong>本文链接：</strong>
+      <span title="ComfyUI的操作与使用">https://www.nosuchfield.com/2025/03/31/ComfyUI-Operation-and-Usage/</span>
+    </div>
+    <div>
+      <strong>版权声明： </strong>
+      本博客所有文章均采用
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！
+    </div>
+  </div>
+  <!-- 自动折叠代码块 -->
+  <style>
+    summary {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    summary:focus {
+      outline: none;
+    }
+  </style>
+  <script>
+    var foldThreshold = 25; // 触发折叠的行数阈值
+    if (new URLSearchParams(window.location.search).get('print') !== null) {
+        foldThreshold = Number.MAX_VALUE
+    }
+
+    var figures = document.querySelectorAll('figure');
+    for (var i = 0; i < figures.length; i++) {
+        var figure = figures[i];
+
+        if (figure.querySelectorAll('br').length / 2 <= foldThreshold) {
+            continue;
+        }
+        var figcaption = figure.querySelector('figcaption') || 0;
+        if (figcaption.innerHTML == '<span>flat</span>') {
+            figcaption.remove();
+            continue;
+        }
+
+        var language = figure.getAttribute('class').replace('highlight ', '');
+
+        var parent = figure.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, figure);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看' + language + '代码'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(figure);
+    }
+
+    var pres = document.querySelectorAll('pre code');
+    for (var i = 0; i < pres.length; i++) {
+        if (pres[i].textContent.split('\n').length <= foldThreshold) {
+            continue;
+        }
+
+        var pre = pres[i].parentNode;
+        var parent = pre.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, pre);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看代码块'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(pre);
+    }
+
+    window.onbeforeprint = (event) => {
+        let details = document.querySelectorAll('details')
+        for (let detail of details) {
+            if (detail.querySelector('pre code')) {
+                detail.parentNode.replaceChild(detail.querySelector('pre'), detail)
+            }
+            if (detail.querySelector('figure')) {
+                detail.parentNode.replaceChild(detail.querySelector('figure'), detail)
+            }
+        }
+    }
+  </script>
+  
+  <!-- giscus评论设置 -->
+  <script src="https://giscus.app/client.js"
+    data-repo="RitterHou/ritterhou.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NjI1MjM5Ng=="
+    data-category="Announcements"
+    data-category-id="DIC_kwDOAsHBbM4Cc3XV"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light"
+    data-lang="zh-CN"
+    crossorigin="anonymous"
+    data-loading="lazy"
+    async>
+  </script>
+  <!-- 自动添加空格来帮助排版 -->
+  <script src="/js/pangu.min.js"></script>
+  <script>pangu.spacingPage()</script>
+  <script>
+    // 回到顶部
+    function backToTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }
+  </script>
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ComfyUI/" rel="tag">ComfyUI</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/Stable-Diffusion/" rel="tag">Stable Diffusion</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90/" rel="tag">图像生成</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a></li></ul>
+    
+    <span onclick="backToTop()" class="top">返回顶部</span>
+  </div>
+  
+</article>
+<footer>
+  <span>&copy; 2015 - 2025</span>
+  <span class="author">Raymond</span>
+  <span style="float: right;">
+    <span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral">
+        <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a>
+    <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a>
+  </span>
+</footer>
+    </div>
+  </body>
+  
+  
+</html>
