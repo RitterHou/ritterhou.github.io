@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>《推荐系统实践》 - 侯锐的思考与分享</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=算法,机器学习,读书笔记,推荐系统,数据挖掘>
+  
+    <meta name="description" content="&lt;blockquote&gt;
+&lt;p&gt;从某种意义上说，推荐系统和搜索引擎对于用户来说是两个互补的工具。搜索引擎满足了用户有明确目的时的主动查找需求，而推荐系统能够在用户没有明确目的的时候帮助他们发现感兴趣的新内容。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;基于用户行为分析的推荐算法是个性化推荐系统的重要算法，学术界一般将这种类型的算法称为协同过滤算法。顾名思义，协同过滤就是指用户可以齐心协力，通过不断地和网站互动，使自己的推荐列表能够不断过滤掉自己不感兴趣的物品，从而越来越满足自己的需求。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;用户行为分类&#34;&gt;&lt;a href=&#34;#用户行为分类&#34; class=&#34;headerlink&#34; title=&#34;用户行为分类&#34;&gt;&lt;/a&gt;用户行为分类&lt;/h3&gt;&lt;p&gt;用户行为在个性化推荐系统中一般分两种——显性反馈行为（explicit feedback）和隐性反馈行为（implicit feedback）。显示反馈行为是用户主动做的，比如给视频点赞、给书籍打分等等；隐式反馈行为的代表就是用户浏览页面，这种行为显示出来的用户偏好不是那么">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://tam.cdn-go.cn/aegis-sdk/latest/aegis.min.js"></script>
+  <script>
+    const aegis = new Aegis({
+      id: 'Yr5KwSbWDxJ9y9zdqw',
+      uin: '',
+      reportApiSpeed: true,
+      reportAssetSpeed: true,
+      spa: true,
+      hostUrl: 'https://rumt-zh.com'
+    });
+  </script>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml">
+</head>
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">侯锐的思考与分享</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link" data-no-instant>主页</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/search" class="menu-item-link" data-no-instant>搜索</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">《推荐系统实践》</h1>
+  </div>
+   <div class="post-meta">
+    <span class="post-time">2025-05-20</span>
+  </div>
+  <div class="post-content">
+    <blockquote>
+<p>从某种意义上说，推荐系统和搜索引擎对于用户来说是两个互补的工具。搜索引擎满足了用户有明确目的时的主动查找需求，而推荐系统能够在用户没有明确目的的时候帮助他们发现感兴趣的新内容。</p>
+</blockquote>
+<blockquote>
+<p>基于用户行为分析的推荐算法是个性化推荐系统的重要算法，学术界一般将这种类型的算法称为协同过滤算法。顾名思义，协同过滤就是指用户可以齐心协力，通过不断地和网站互动，使自己的推荐列表能够不断过滤掉自己不感兴趣的物品，从而越来越满足自己的需求。</p>
+</blockquote>
+<h3 id="用户行为分类"><a href="#用户行为分类" class="headerlink" title="用户行为分类"></a>用户行为分类</h3><p>用户行为在个性化推荐系统中一般分两种——显性反馈行为（explicit feedback）和隐性反馈行为（implicit feedback）。显示反馈行为是用户主动做的，比如给视频点赞、给书籍打分等等；隐式反馈行为的代表就是用户浏览页面，这种行为显示出来的用户偏好不是那么明显，但是数据量更大。</p>
+<h2 id="常用算法"><a href="#常用算法" class="headerlink" title="常用算法"></a>常用算法</h2><h3 id="基于邻域的算法"><a href="#基于邻域的算法" class="headerlink" title="基于邻域的算法"></a>基于邻域的算法</h3><ul>
+<li>基于用户的协同过滤算法 这种算法给用户推荐和他兴趣相似的其他用户喜欢的物品。<ol>
+<li>找到和目标用户兴趣相似的用户集合（P45）。</li>
+<li>找到这个集合中的用户喜欢的，且目标用户没有听说过的物品推荐给目标用户。</li>
+</ol>
+</li>
+<li>基于物品的协同过滤算法 这种算法给用户推荐和他之前喜欢的物品相似的物品。<ol>
+<li>计算物品之间的相似度（P53）。</li>
+<li>根据物品的相似度和用户的历史行为给用户生成推荐列表。</li>
+</ol>
+</li>
+</ul>
+<h3 id="LFM（latent-factor-model）隐语义模型"><a href="#LFM（latent-factor-model）隐语义模型" class="headerlink" title="LFM（latent factor model）隐语义模型"></a>LFM（latent factor model）隐语义模型</h3><h3 id="基于图的模型"><a href="#基于图的模型" class="headerlink" title="基于图的模型"></a>基于图的模型</h3><h3 id="冷启动：如何向刚刚注册的用户进行推荐"><a href="#冷启动：如何向刚刚注册的用户进行推荐" class="headerlink" title="冷启动：如何向刚刚注册的用户进行推荐"></a>冷启动：如何向刚刚注册的用户进行推荐</h3><h3 id="标签系统"><a href="#标签系统" class="headerlink" title="标签系统"></a>标签系统</h3><h3 id="利用上下文进行推荐：例如，冬天不应该推荐短袖衣服"><a href="#利用上下文进行推荐：例如，冬天不应该推荐短袖衣服" class="headerlink" title="利用上下文进行推荐：例如，冬天不应该推荐短袖衣服"></a>利用上下文进行推荐：例如，冬天不应该推荐短袖衣服</h3><p>常用上下文：时间 &amp; 地点</p>
+<p><a target="_blank" rel="noopener" href="https://book.douban.com/subject/10769749/">https://book.douban.com/subject/10769749/</a></p>
+
+  </div>
+  <div class="post-copyright">
+    <div>
+      <strong>本文链接：</strong>
+      <span title="《推荐系统实践》">https://www.nosuchfield.com/2025/05/20/Recommender-Systems-in-Practice/</span>
+    </div>
+    <div>
+      <strong>版权声明： </strong>
+      本博客所有文章均采用
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！
+    </div>
+  </div>
+  <!-- 自动折叠代码块 -->
+  <style>
+    summary {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    summary:focus {
+      outline: none;
+    }
+  </style>
+  <script>
+    var foldThreshold = 25; // 触发折叠的行数阈值
+    if (new URLSearchParams(window.location.search).get('print') !== null) {
+        foldThreshold = Number.MAX_VALUE
+    }
+
+    var figures = document.querySelectorAll('figure');
+    for (var i = 0; i < figures.length; i++) {
+        var figure = figures[i];
+
+        if (figure.querySelectorAll('br').length / 2 <= foldThreshold) {
+            continue;
+        }
+        var figcaption = figure.querySelector('figcaption') || 0;
+        if (figcaption.innerHTML == '<span>flat</span>') {
+            figcaption.remove();
+            continue;
+        }
+
+        var language = figure.getAttribute('class').replace('highlight ', '');
+
+        var parent = figure.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, figure);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看' + language + '代码'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(figure);
+    }
+
+    var pres = document.querySelectorAll('pre code');
+    for (var i = 0; i < pres.length; i++) {
+        if (pres[i].textContent.split('\n').length <= foldThreshold) {
+            continue;
+        }
+
+        var pre = pres[i].parentNode;
+        var parent = pre.parentNode;
+        var wrapper = document.createElement('details');
+        // wrapper.setAttribute('open', true);
+        parent.replaceChild(wrapper, pre);
+
+        var summary = document.createElement('summary');
+        summary.setAttribute('title', '展示 / 隐藏');
+        summary.appendChild(document.createTextNode('查看代码块'));
+        wrapper.appendChild(summary);
+        wrapper.appendChild(pre);
+    }
+
+    window.onbeforeprint = (event) => {
+        let details = document.querySelectorAll('details')
+        for (let detail of details) {
+            if (detail.querySelector('pre code')) {
+                detail.parentNode.replaceChild(detail.querySelector('pre'), detail)
+            }
+            if (detail.querySelector('figure')) {
+                detail.parentNode.replaceChild(detail.querySelector('figure'), detail)
+            }
+        }
+    }
+  </script>
+  
+  <!-- giscus评论设置 -->
+  <script src="https://giscus.app/client.js"
+    data-repo="RitterHou/ritterhou.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NjI1MjM5Ng=="
+    data-category="Announcements"
+    data-category-id="DIC_kwDOAsHBbM4Cc3XV"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light"
+    data-lang="zh-CN"
+    crossorigin="anonymous"
+    data-loading="lazy"
+    async>
+  </script>
+  <!-- 自动添加空格来帮助排版 -->
+  <script src="/js/pangu.min.js"></script>
+  <script>pangu.spacingPage()</script>
+  <script>
+    // 回到顶部
+    function backToTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }
+  </script>
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F/" rel="tag">推荐系统</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+    
+    <span onclick="backToTop()" class="top">返回顶部</span>
+  </div>
+  
+</article>
+<footer>
+  <span>&copy; 2015 - 2025</span>
+  <span class="author">Raymond</span>
+  <span style="float: right;">
+    <span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral">
+        <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a>
+    <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a>
+  </span>
+</footer>
+    </div>
+  </body>
+  
+  
+</html>
