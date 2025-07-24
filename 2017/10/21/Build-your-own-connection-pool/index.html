@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>自己构建连接池 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="数据库"><meta name="description" content="&lt;p&gt;使用连接池的目的在于降低因为反复创建连接所带来的时间损耗。我们知道，TCP协议创建连接的过程是比较复杂的，因此反复创建或关闭连接显然不是一个正确的选择，我把我们可以选择连接策略大概分为以下几种情况。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;单个线程，单个链接（适用于并发量较小的场合）&lt;/li&gt;
+&lt;li&gt;多个线程，单个链接（线程在单个连接上同步将导致大量线程被阻塞，影响系统响应速度）&lt;/li&gt;
+&lt;li&gt;多个线程，多个链接&lt;ol&gt;
+&lt;li&gt;每个线程创建自己的链接（开销大，速度慢）&lt;/li&gt;
+&lt;li&gt;使用连接池（√）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;正因为连接的创建和销毁都比较耗时，所以使用连接池是一种比较合理的选择，因而接下来的问题就变成了如何创建一个合适的线程池，一般策略是这样的：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在系统初始化的时候创建固定数量的连接&lt;/li&gt;
+&lt;li&gt;给连接添加一定的缓冲区，当连接数量不够时我们可以优先的把操作请求放入缓冲区中，之后当有连接空闲时就去执行缓冲区中请求&lt;/li&gt;
+&lt;li&gt;如果连接已经全部在工作并且缓冲区也已经被充满，那么我们可以动态的来创建新的连接（"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">自己构建连接池</h1></div><div class="post-meta"><span class="post-time">2017-10-21</span></div><div class="post-content"><p>使用连接池的目的在于降低因为反复创建连接所带来的时间损耗。我们知道，TCP协议创建连接的过程是比较复杂的，因此反复创建或关闭连接显然不是一个正确的选择，我把我们可以选择连接策略大概分为以下几种情况。</p><ol><li>单个线程，单个链接（适用于并发量较小的场合）</li><li>多个线程，单个链接（线程在单个连接上同步将导致大量线程被阻塞，影响系统响应速度）</li><li>多个线程，多个链接<ol><li>每个线程创建自己的链接（开销大，速度慢）</li><li>使用连接池（√）</li></ol></li></ol><p>正因为连接的创建和销毁都比较耗时，所以使用连接池是一种比较合理的选择，因而接下来的问题就变成了如何创建一个合适的线程池，一般策略是这样的：</p><ol><li>在系统初始化的时候创建固定数量的连接</li><li>给连接添加一定的缓冲区，当连接数量不够时我们可以优先的把操作请求放入缓冲区中，之后当有连接空闲时就去执行缓冲区中请求</li><li>如果连接已经全部在工作并且缓冲区也已经被充满，那么我们可以动态的来创建新的连接（同时增大缓冲区），我们可以使用新创建的连接来处理多于的请求，从而增加系统的灵活性</li><li>如果请求进一步增多，连接也不断的被创建直到超过了最大连接数限制，那么此时即使请求更多也不能继续创建连接了，所以此时新的请求只能等待直到有新的资源</li><li>当请求数下降时，在运行时被新创建的连接已经进入空闲状态，我们设置一个idle time，当某个连接空闲时间超出这个时间时就会被关闭而减少系统的资源占用</li><li>连接数即使被不断减少，最低也不应该小于初始连接数的大小，即系统中应该常驻一定数量的连接数而不论当前请求数如何</li></ol><p>我自己实现了一个简单的连接池demo，完整的代码位于 <a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool">https://github.com/RitterHou/resource-pool</a><br>首先需要创建一个用于模拟数据库（服务器）的类，它提供了<a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool/blob/master/src/main/java/com/nosuchfield/pool/Server.java#L8">执行一次请求的方法</a>，在这个方法中我们假设每次执行操作都需要100ms。</p><p>我们还需要一个连接类，因为创建链接普遍比较耗时，所以我假设创建一个连接需要500ms，并且连接还需要指定一台服务器。连接还需要提供可以执行服务器命令的方法，我还记录了连接<a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool/blob/master/src/main/java/com/nosuchfield/pool/Connection.java#L32">最后一次执行命令的时间</a>来帮助记录连接的空闲时间。</p><p>有了服务器和连接之后我们就可以创建自己的连接池实现了，连接池的主要策略实现在<a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool/blob/master/src/main/java/com/nosuchfield/pool/Pool.java#L59">获取</a>和<a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool/blob/master/src/main/java/com/nosuchfield/pool/Pool.java#L101">归还</a>连接的方法中。除此之外，我们还实现了自动执行超时连接关闭的<a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool/blob/master/src/main/java/com/nosuchfield/pool/Pool.java#L112">方法</a>。</p><p>最后，我们就可以开始测试我们的连接池了。我<a target="_blank" rel="noopener" href="https://github.com/RitterHou/resource-pool/blob/master/src/main/java/com/nosuchfield/pool/Application.java#L23-L24">创建了两个线程</a>，分别使用单个连接和连接池来处理100个请求，观察它们的结果差异，我的运行结果如下：</p><pre><code>[Thread-1] INFO com.nosuchfield.pool.Application - 单个启动耗时：503
+[Thread-2] INFO com.nosuchfield.pool.Application - 连接池启动耗时：5005
+[Timer-0] INFO com.nosuchfield.pool.Pool - 5 个连接被移除，还剩 15
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 15
+[Thread-2] INFO com.nosuchfield.pool.Application - 连接池执行耗时：3932
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Thread-1] INFO com.nosuchfield.pool.Application - 单个执行耗时：10012
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 0 个连接被移除，还剩 17
+[Timer-0] INFO com.nosuchfield.pool.Pool - 7 个连接被移除，还剩 10
+</code></pre></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="自己构建连接池">https://www.nosuchfield.com/2017/10/21/Build-your-own-connection-pool/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>通过-Intellj-Idea-来使用-Maven-构建-SpringMVC-开发环境 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="JavaWeb"><meta name="description" content="&lt;p&gt;最近在学习使用Intellj Idea，感觉确实很方便，今天正好用它通过Maven搭建了一个SpringMVC的Demo，就记录下操作过程以便以后参考。&lt;/p&gt;
+&lt;h4 id=&#34;1-下载安装Maven&#34;&gt;&lt;a href=&#34;#1-下载安装Maven&#34; class=&#34;headerlink&#34; title=&#34;1.下载安装Maven&#34;&gt;&lt;/a&gt;1.下载安装Maven&lt;/h4&gt;&lt;p&gt;在Maven的&lt;a href=&#34;http://maven.apache.org/&#34;&gt;官网&lt;/a&gt;下载了Maven之后，把下载的压缩文件解压，接着把Maven的安装路径命名为&lt;code&gt;%MAVEN_HOME%&lt;/code&gt;添加到环境变量中，接着在&lt;code&gt;path&lt;/code&gt;中加入&lt;code&gt;%MAVEN_HOME%\bin&lt;/code&gt;就成功安装好了Maven，接着试着在命令行下敲击&lt;code&gt;mvn -v&lt;/code&gt;，如果出现以下信息，就说明Maven安装成功。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/images/others/220.png&#34;&gt;&lt;/p&gt;
+&lt;h4 id=&#34;2-安装Intellj-Idea&#34;"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">通过-Intellj-Idea-来使用-Maven-构建-SpringMVC-开发环境</h1></div><div class="post-meta"><span class="post-time">2015-12-22</span></div><div class="post-content"><p>最近在学习使用Intellj Idea，感觉确实很方便，今天正好用它通过Maven搭建了一个SpringMVC的Demo，就记录下操作过程以便以后参考。</p><h4 id="1-下载安装Maven"><a href="#1-下载安装Maven" class="headerlink" title="1.下载安装Maven"></a>1.下载安装Maven</h4><p>在Maven的<a target="_blank" rel="noopener" href="http://maven.apache.org/">官网</a>下载了Maven之后，把下载的压缩文件解压，接着把Maven的安装路径命名为<code>%MAVEN_HOME%</code>添加到环境变量中，接着在<code>path</code>中加入<code>%MAVEN_HOME%\bin</code>就成功安装好了Maven，接着试着在命令行下敲击<code>mvn -v</code>，如果出现以下信息，就说明Maven安装成功。</p><p><img src="/images/others/220.png"></p><h4 id="2-安装Intellj-Idea"><a href="#2-安装Intellj-Idea" class="headerlink" title="2.安装Intellj Idea"></a>2.安装Intellj Idea</h4><p>在<a target="_blank" rel="noopener" href="http://www.jetbrains.com/idea/">官网</a>下载Intell Idea并且安装，安装好了之后可以进行一些个性化的设置，界面选择黑色，一股酷炫的的风格扑面而来。</p><h4 id="3-Intellj-Idea创建工程"><a href="#3-Intellj-Idea创建工程" class="headerlink" title="3.Intellj Idea创建工程"></a>3.Intellj Idea创建工程</h4><ol><li>点击 Create New Project 来创建一个新的Project<br><img src="/images/others/221.png"></li><li>选择 Empty Project，点击 Next</li><li>输入路径和工程名称，点击 Finish<br><img src="/images/others/222.png"></li><li>点击 + 号新建一个 Module，然后选择webapp的Maven项目，点击Next。<br><img src="/images/others/223.png"><br><img src="/images/others/224.png"></li><li>输入Maven相关信息，点击Next。<br><img src="/images/others/225.png"></li><li>输入 Module 的信息，点击 Finish，完成工程的创建。<br><img src="/images/others/226.png"></li><li>工程创建成功<br><img src="/images/others/227.png"></li></ol><h4 id="4-工程的相关的属性的设置"><a href="#4-工程的相关的属性的设置" class="headerlink" title="4.工程的相关的属性的设置"></a>4.工程的相关的属性的设置</h4><ol><li><p>把以下SpringMVC的相关设置内容保存到 pom.xml 中,应该会获得下面第一张图片中的文件结构，手动把文件结构修改为第二张图片中的形式。</p><pre><code>&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+     xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
+ &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+      &lt;groupId&gt;com.nosuchfield&lt;/groupId&gt;
+    &lt;artifactId&gt;nosuchfield&lt;/artifactId&gt;
+    &lt;packaging&gt;war&lt;/packaging&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;nosuchfield Maven Webapp&lt;/name&gt;
+    &lt;url&gt;http://maven.apache.org&lt;/url&gt;
+
+    &lt;properties&gt;
+      &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+      &lt;springversion&gt;3.1.1.RELEASE&lt;/springversion&gt;
+      &lt;junitversion&gt;3.8.1&lt;/junitversion&gt;
+    &lt;/properties&gt;
+
+      &lt;dependencies&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;junit&lt;/groupId&gt;
+          &lt;artifactId&gt;junit&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;junitversion&#125;&lt;/version&gt;
+          &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-aop&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-asm&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-aspects&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-beans&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-context-support&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-core&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-expression&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-jms&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-orm&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-oxm&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-tx&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-web&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-test&lt;/artifactId&gt;
+          &lt;version&gt;$&#123;springversion&#125;&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+          &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+          &lt;artifactId&gt;jstl&lt;/artifactId&gt;
+          &lt;version&gt;1.2&lt;/version&gt;
+          &lt;type&gt;jar&lt;/type&gt;
+          &lt;scope&gt;compile&lt;/scope&gt;
+        &lt;/dependency&gt;
+    
+        &lt;dependency&gt;
+          &lt;groupId&gt;commons-collections&lt;/groupId&gt;
+          &lt;artifactId&gt;commons-collections&lt;/artifactId&gt;
+          &lt;version&gt;3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+    
+        &lt;dependency&gt;
+          &lt;groupId&gt;commons-logging&lt;/groupId&gt;
+          &lt;artifactId&gt;commons-logging&lt;/artifactId&gt;
+          &lt;version&gt;1.2&lt;/version&gt;
+        &lt;/dependency&gt;
+      &lt;/dependencies&gt;
+    
+      &lt;build&gt;
+        &lt;finalName&gt;nosuchfield&lt;/finalName&gt;
+      &lt;/build&gt;
+&lt;/project&gt;
+</code></pre><p>默认生成的文件目录结构</p><p><img src="/images/others/228.png"></p><p>把目录结构修改为下面的这种形式</p><p><img src="/images/others/229.png"></p></li><li><p>修改 web.xml 和 applicationContext.xml 中的内容为</p><p>web.xml</p><pre><code> &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+ &lt;web-app version=&quot;3.0&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;
+      xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee
+ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;&gt;
+
+ &lt;display-name&gt;&lt;/display-name&gt;
+
+ &lt;!-- Spring的log4j监听器 --&gt;
+ &lt;listener&gt;
+     &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+ &lt;/listener&gt;
+
+   &lt;!-- 核心控制器 --&gt;
+   &lt;servlet&gt;
+     &lt;servlet-name&gt;hello&lt;/servlet-name&gt;
+     &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+     &lt;init-param&gt;
+       &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+       &lt;param-value&gt;/WEB-INF/applicationContext.xml&lt;/param-value&gt;
+     &lt;/init-param&gt;
+     &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+   &lt;/servlet&gt;
+
+   &lt;listener&gt;
+     &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+   &lt;/listener&gt;
+   &lt;servlet-mapping&gt;
+     &lt;servlet-name&gt;hello&lt;/servlet-name&gt;
+     &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+   &lt;/servlet-mapping&gt;
+ 
+   &lt;welcome-file-list&gt;
+     &lt;welcome-file&gt;index.jsp&lt;/welcome-file&gt;
+   &lt;/welcome-file-list&gt;
+
+ &lt;/web-app&gt;
+</code></pre><p>applicationContext.xml</p><pre><code> &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+ &lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/mvc
+     http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd&quot;&gt;
+
+ &lt;mvc:annotation-driven /&gt;
+ &lt;context:component-scan base-package=&quot;com.nosuchfield&quot; /&gt;
+
+ &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;
+     &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/jsp/&quot; /&gt;
+     &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot; /&gt;
+ &lt;/bean&gt;
+
+ &lt;/beans&gt;
+</code></pre></li><li><p>在 setting 的 Application Servers 中添加 Tomcat 服务器<br><img src="/images/others/2210.png"></p></li><li><p>回到主界面，点击界面右上角的倒三角，然后选择 Edit Configurations…，然后在打开的界面中添加 Loacl Tomcat Server。<br><img src="/images/others/2211.png"></p></li><li><p>新建一个 Artifact，选择 exploded 模式，然后点击OK。<br><img src="/images/others/2212.png"></p></li><li><p>在 src&#x2F;main&#x2F;java 中新建一个 com.nosuchfield 的包，然后新建一个 Hello.java 文件，输入以下测试内容。</p><p>package com.nosuchfield;<br>import org.springframework.stereotype.Controller;<br>import org.springframework.web.bind.annotation.RequestMapping;<br>&#x2F;**<br>* Created on 2015&#x2F;12&#x2F;24 0:06.<br>*&#x2F;<br>@Controller<br>public class Hello {<br>@RequestMapping(“&#x2F;test”)<br>public String test() {<br>return “hello”;<br>}<br>}</p></li><li><p>点击右上角的运行按钮，Tomcat启动完毕后，在浏览器中可以查看到我们写的内容，工程构建完毕。<br><img src="/images/others/2213.png"><br><img src="/images/others/2214.png"><br><img src="/images/others/2215.png"></p></li><li><p>点击下面的按钮可以在不重新启动 Tomcat 的情况下把最近修改的Java文件重新发布，实现热部署。<br><img src="/images/others/2216.png"></p></li></ol></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="通过-Intellj-Idea-来使用-Maven-构建-SpringMVC-开发环境">https://www.nosuchfield.com/2015/12/22/%E9%80%9A%E8%BF%87-Intellj-Idea-%E6%9D%A5%E4%BD%BF%E7%94%A8-Maven-%E6%9E%84%E5%BB%BA-SpringMVC-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/JavaWeb/" rel="tag">JavaWeb</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>
