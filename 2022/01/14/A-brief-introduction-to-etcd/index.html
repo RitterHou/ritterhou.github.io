@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>etcd的简单介绍 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="分布式系统,分布式一致性,分布式,一致性,数据库"><meta name="description" content="&lt;p&gt;&lt;a href=&#34;https://etcd.io/&#34;&gt;etcd&lt;/a&gt;是一个开源的分布式一致性键值数据库，其基于Raft一致性算法，用于数据存储、服务发现和调度协调。&lt;/p&gt;
+&lt;h3 id=&#34;安装&#34;&gt;&lt;a href=&#34;#安装&#34; class=&#34;headerlink&#34; title=&#34;安装&#34;&gt;&lt;/a&gt;安装&lt;/h3&gt;&lt;p&gt;首先我们下载&lt;a href=&#34;https://github.com/etcd-io/etcd/releases&#34;&gt;程序包&lt;/a&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;useradd etcd
+su - etcd
+wget https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-amd64.tar.gz
+tar -zxvf etcd-v3.5.4-linux-amd64.tar.gz
+cd etcd-v3.5.4-linux-amd64
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;之后我们可以查询etcd的版本&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ ./etcd --version
+etcd Ver"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">etcd的简单介绍</h1></div><div class="post-meta"><span class="post-time">2022-01-14</span></div><div class="post-content"><p><a target="_blank" rel="noopener" href="https://etcd.io/">etcd</a>是一个开源的分布式一致性键值数据库，其基于Raft一致性算法，用于数据存储、服务发现和调度协调。</p><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>首先我们下载<a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/releases">程序包</a></p><pre><code>useradd etcd
+su - etcd
+wget https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-amd64.tar.gz
+tar -zxvf etcd-v3.5.4-linux-amd64.tar.gz
+cd etcd-v3.5.4-linux-amd64
+</code></pre><p>之后我们可以查询etcd的版本</p><pre><code>$ ./etcd --version
+etcd Version: 3.5.4
+Git SHA: 08407ff76
+Go Version: go1.16.15
+Go OS/Arch: linux/amd64
+</code></pre><p>我们在三台负载<code>172.19.34.15</code>、<code>172.19.34.56</code>和<code>172.19.34.82</code>上分别执行如上操作来安装etcd。</p><h3 id="搭建集群"><a href="#搭建集群" class="headerlink" title="搭建集群"></a>搭建集群</h3><p>我们使用etcd来构建一个集群，服务启动的相关配置既可以使用<a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.5/op-guide/configuration/#command-line-flags">命令行设置</a>也可以使用<a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.5/op-guide/configuration/#configuration-file">配置文件设置</a>。相关配置的含义如下</p><div style="overflow:auto"><style>div table{white-space:nowrap}</style><table><thead><tr><th align="left">配置</th><th align="left">含义</th><th align="left">默认值</th></tr></thead><tbody><tr><td align="left">name</td><td align="left">当前节点的名称</td><td align="left">default</td></tr><tr><td align="left">initial-advertise-peer-urls</td><td align="left">告知其它节点，当前节点与其它节点交流的ip地址和端口</td><td align="left"><a target="_blank" rel="noopener" href="http://localhost:2380/">http://localhost:2380</a></td></tr><tr><td align="left">advertise-client-urls</td><td align="left">告知其它节点，当前节点与客户端通信的ip地址和端口</td><td align="left"><a target="_blank" rel="noopener" href="http://localhost:2379/">http://localhost:2379</a></td></tr><tr><td align="left">listen-peer-urls</td><td align="left">当前节点所监听的，用于与其它节点交流的ip地址和端口</td><td align="left"><a target="_blank" rel="noopener" href="http://localhost:2380/">http://localhost:2380</a></td></tr><tr><td align="left">listen-client-urls</td><td align="left">当前节点所监听的，用于与客户端通信的ip地址和端口</td><td align="left"><a target="_blank" rel="noopener" href="http://localhost:2379/">http://localhost:2379</a></td></tr><tr><td align="left">initial-cluster-token</td><td align="left">集群的token属性，相当于集群的名称</td><td align="left">etcd-cluster</td></tr><tr><td align="left">initial-cluster</td><td align="left">集群的节点信息，用于与其它的节点进行网络连接</td><td align="left">default&#x3D;<a target="_blank" rel="noopener" href="http://localhost:2380/">http://localhost:2380</a></td></tr><tr><td align="left">initial-cluster-state</td><td align="left">第一次启动集群设为<code>new</code>，加入已有集群设为<code>existing</code></td><td align="left">new</td></tr></tbody></table></div><p>在三台设备上面设置好一些启动所需要的属性</p><pre><code># 集群的名称
+TOKEN=my-etcd-cluster
+# 所有的节点网络连接信息
+CLUSTER=node1=http://172.19.34.15:2380,node2=http://172.19.34.56:2380,node3=http://172.19.34.82:2380
+
+# 只在172.19.34.15上设置
+NAME=node1
+IP=172.19.34.15
+
+# 只在172.19.34.56上设置
+NAME=node2
+IP=172.19.34.56
+
+# 只在172.19.34.82上设置
+NAME=node3
+IP=172.19.34.82
+</code></pre><p>之后我们使用命令行设置在三个节点上分别启动三个进程</p><pre><code>$ ./etcd --name $&#123;NAME&#125; \
+    --initial-advertise-peer-urls http://$&#123;IP&#125;:2380 \
+    --advertise-client-urls http://$&#123;IP&#125;:2379 \
+    --listen-peer-urls http://$&#123;IP&#125;:2380 \
+    --listen-client-urls http://$&#123;IP&#125;:2379,http://127.0.0.1:2379 \
+    --initial-cluster-token $&#123;TOKEN&#125; \
+    --initial-cluster $&#123;CLUSTER&#125;
+</code></pre><p>在三台负载都执行了etcd启动命令之后，正常情况下三个节点已经构成了一个etcd集群。集群搭建好了之后，我们可以使用<code>etcdctl</code>客户端获取集群中的节点信息</p><pre><code>$ ENDPOINTS=172.19.34.15:2379,172.19.34.56:2379,172.19.34.82:2379
+$ ./etcdctl --endpoints=$ENDPOINTS member list
+3524bbececbcecf7, started, node2, http://172.19.34.56:2380, http://172.19.34.56:2379, false
+b1d70dbaf73a7a68, started, node1, http://172.19.34.15:2380, http://172.19.34.15:2379, false
+e4391b8282b4faf7, started, node3, http://172.19.34.82:2380, http://172.19.34.82:2379, false
+</code></pre><h3 id="操作集群"><a href="#操作集群" class="headerlink" title="操作集群"></a>操作集群</h3><h4 id="键值对的写入和读取操作"><a href="#键值对的写入和读取操作" class="headerlink" title="键值对的写入和读取操作"></a>键值对的写入和读取操作</h4><pre><code>./etcdctl --endpoints=$ENDPOINTS put name &quot;zhangsan&quot;
+./etcdctl --endpoints=$ENDPOINTS get name
+./etcdctl --endpoints=$ENDPOINTS --write-out=&quot;json&quot; get name
+./etcdctl --endpoints=$ENDPOINTS put name1 &quot;lisi&quot;
+./etcdctl --endpoints=$ENDPOINTS get name --prefix
+./etcdctl --endpoints=$ENDPOINTS del name
+</code></pre><h4 id="锁操作"><a href="#锁操作" class="headerlink" title="锁操作"></a>锁操作</h4><pre><code># 在两个终端执行该命令，只有一个会成功，另一个会等待直到第一个锁释放
+./etcdctl --endpoints=$ENDPOINTS lock mutex1
+</code></pre><h4 id="监控key"><a href="#监控key" class="headerlink" title="监控key"></a>监控key</h4><pre><code># 在一个终端对指定key进行监控
+./etcdctl --endpoints=$ENDPOINTS watch stock1
+# 在另一个终端操作这个key，第一个终端的监控程序会收到操作数据
+./etcdctl --endpoints=$ENDPOINTS put stock1 1000
+</code></pre><h4 id="租约"><a href="#租约" class="headerlink" title="租约"></a>租约</h4><pre><code># 创建一个租约，时长30秒
+./etcdctl --endpoints=$ENDPOINTS lease grant 30
+# lease 7af781dc5d746b11 granted with TTL(30s)
+
+./etcdctl --endpoints=$ENDPOINTS put name zhangsan --lease=7af781dc5d746b11
+# 30秒后数据就没有了
+./etcdctl --endpoints=$ENDPOINTS get name
+</code></pre><h4 id="查看集群状态"><a href="#查看集群状态" class="headerlink" title="查看集群状态"></a>查看集群状态</h4><pre><code>./etcdctl --write-out=table --endpoints=$ENDPOINTS endpoint status
++-------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
+|     ENDPOINT      |        ID        | VERSION | DB SIZE | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS |
++-------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
+| 172.19.34.15:2379 | b1d70dbaf73a7a68 |   3.5.4 |   20 kB |      true |      false |         5 |         39 |                 39 |        |
+| 172.19.34.56:2379 | 3524bbececbcecf7 |   3.5.4 |   20 kB |     false |      false |         5 |         39 |                 39 |        |
+| 172.19.34.82:2379 | e4391b8282b4faf7 |   3.5.4 |   20 kB |     false |      false |         5 |         39 |                 39 |        |
++-------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
+</code></pre><p></p><pre><code>./etcdctl --endpoints=$ENDPOINTS endpoint health
+172.19.34.15:2379 is healthy: successfully committed proposal: took = 20.180745ms
+172.19.34.82:2379 is healthy: successfully committed proposal: took = 21.915962ms
+172.19.34.56:2379 is healthy: successfully committed proposal: took = 24.358102ms
+</code></pre><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.5/tutorials/">https://etcd.io/docs/v3.5/tutorials/</a><br><a target="_blank" rel="noopener" href="https://www.infoq.cn/article/zqzelyy57xgvb6ecxcfb">https://www.infoq.cn/article/zqzelyy57xgvb6ecxcfb</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="etcd的简单介绍">https://www.nosuchfield.com/2022/01/14/A-brief-introduction-to-etcd/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7/" rel="tag">一致性</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7/" rel="tag">分布式一致性</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag">分布式系统</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

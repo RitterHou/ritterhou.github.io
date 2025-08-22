@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>MySQL 基础知识 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="数据库"><meta name="description" content="&lt;h4 id=&#34;0-MySQL的常用操作&#34;&gt;&lt;a href=&#34;#0-MySQL的常用操作&#34; class=&#34;headerlink&#34; title=&#34;0.MySQL的常用操作&#34;&gt;&lt;/a&gt;0.MySQL的常用操作&lt;/h4&gt;&lt;p&gt;SHOW DATABASES;显示所有的数据库&lt;/p&gt;
+&lt;p&gt;USE database;切换到某一个数据库&lt;/p&gt;
+&lt;p&gt;SHOW TABLES;显示当前数据库中的所有的表&lt;/p&gt;
+&lt;p&gt;SHOW COLUMNS FROM table;详细显示某一个表的信息&lt;/p&gt;
+&lt;p&gt;SHOW STATUS;显示服务器状态&lt;/p&gt;
+&lt;p&gt;SHOW CREATE DATABASE database&amp;#x2F;SHOW CREATE TABLE table;显示创建某一个数据库&amp;#x2F;表的语句&lt;/p&gt;
+&lt;p&gt;SHOW GRANTS;显示用户的权限&lt;/p&gt;
+&lt;p&gt;SHOW ERRORS&amp;#x2F;SHOW WARNINGS&lt;/p&gt;
+&lt;h4 id=&#34;1-检索&#34;&gt;&lt;a href=&#34;#1-检索&#34; class=&#34;headerlink&#34; title=&#34;1.检索&#34;&gt;&lt;/a&gt;1.检索&lt;/h4&gt;&lt;p"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">MySQL 基础知识</h1></div><div class="post-meta"><span class="post-time">2015-12-12</span></div><div class="post-content"><h4 id="0-MySQL的常用操作"><a href="#0-MySQL的常用操作" class="headerlink" title="0.MySQL的常用操作"></a>0.MySQL的常用操作</h4><p>SHOW DATABASES;显示所有的数据库</p><p>USE database;切换到某一个数据库</p><p>SHOW TABLES;显示当前数据库中的所有的表</p><p>SHOW COLUMNS FROM table;详细显示某一个表的信息</p><p>SHOW STATUS;显示服务器状态</p><p>SHOW CREATE DATABASE database&#x2F;SHOW CREATE TABLE table;显示创建某一个数据库&#x2F;表的语句</p><p>SHOW GRANTS;显示用户的权限</p><p>SHOW ERRORS&#x2F;SHOW WARNINGS</p><h4 id="1-检索"><a href="#1-检索" class="headerlink" title="1.检索"></a>1.检索</h4><p>SELECTG DISTINCT xxx; 表示只检索返回不同的值</p><p>SELECT xxx FROM xxx LIMIT 5; 表示返回不多于 5 行</p><p>SELECT xxx FROM xxx LIMIT 5, 5; 第一个数表示开始的位置，第二个数表示要检索的行数</p><p>~ LIMIT 4 OFFSET 3; 从第 3 开始取 4 行</p><p>~ ORDER BY A, B; 先按照 A 排序，如果 A 一样，按照 B 排序</p><p>~ ORDER BY A DESC; 降序排序 （默认升序 ASC）</p><p>~ WHERE A IS NULL; 当取不到值的时候符合要求</p><p>LIKE %：任意多个字符 _：一个字符</p><p>REGEXP ‘xxx’ 正则表达式匹配</p><p>Concat：字符拼接<br>SELECT Concat(name, “&#x3D;”, name) FROM ~</p><p>SELECT AVG() FROM ~ 所检索出来的值的平均值</p><p>SELECT COUNT(*) FROM ~ 把所有取到的值计算进来，然后得出检索出的总数据条数</p><p>SELECT COUNT(column) FROM ~ 写指定的列的名字，只对该列为非空的情况下计算为一条数据</p><p>~ GROUP BY a HAVING b &gt; 10; 分组查询</p><p>~ GROUP BY a HAVING b &gt; 10 ORDER BY a LIMIT 5 OFFSET 2; 一条包含常见检索条件的SQL语句</p><p>UNION 指示MySQL执行多条SELECT语句，并把输出组合成单个查询结果<br>UNION 必须由两条或者两条以上的SELECT语句组成，检索的数据应该相同<br>UNION ALL 取出所有的行（包括重复的行），UNION 在检索时默认会去除重复的行</p><h4 id="2-插入"><a href="#2-插入" class="headerlink" title="2.插入"></a>2.插入</h4><p>INSERT INTO table (aa, bb) VALUES (cc, dd); 插入数据</p><p>INSERT LOW_PRIORITY INTO ~ 降低插入相对于检索来说的优先级</p><h4 id="3-更新"><a href="#3-更新" class="headerlink" title="3.更新"></a>3.更新</h4><p>UPDATE table SET aa &#x3D; bb WHERE cc &#x3D; dd; 数据更新操作</p><p>UPDATE IGNORE table ~ 如果更新时遇到错误，也要继续更新</p><h4 id="4-删除"><a href="#4-删除" class="headerlink" title="4.删除"></a>4.删除</h4><p>DELETE FROM table WHERE aa &#x3D; bb; 删除一整条数据</p><p>DELETE从表中删除行，甚至是删除所有的行，但是DELETE不删除表本身</p><p>表的清空：TRUNCATE table; 此条语句实际上是删除原来的表并重新创建一个表，而不是逐行删除表中的数据，所以速度很快</p><h4 id="5-创建表"><a href="#5-创建表" class="headerlink" title="5.创建表"></a>5.创建表</h4><p>PRIMARY KEY (a, b) 创建主键</p><p>AUTO_INCREMENT 自增<br>SELECT last_insert_id() 获得最后一个AUTO_INCREMENT 的值</p><p>DEFAULT a 制定默认值</p><p>InnoDB 可靠的事务处理引擎，不支持全文本搜索<br>MEMORY 功能上等同于 MyISAM，数据存储在内存，速度很快<br>MyISAM 性能极高，支持全文本搜索，不支持事务处理</p><h4 id="6-重命名表"><a href="#6-重命名表" class="headerlink" title="6.重命名表"></a>6.重命名表</h4><p>RENAME TABLE a TO b, c TO d;</p><h4 id="7-更新表"><a href="#7-更新表" class="headerlink" title="7.更新表"></a>7.更新表</h4><p>ALTER TABLE table ~</p><p>~ ADD a CHAR(20) 增加一个列a</p><p>~ DROP COLUMN a 删除列a</p><h4 id="8-删除表"><a href="#8-删除表" class="headerlink" title="8.删除表"></a>8.删除表</h4><p>DROP TABLE a;</p><h4 id="9-视图"><a href="#9-视图" class="headerlink" title="9.视图"></a>9.视图</h4><p>视图是虚拟的表。<br>可以把某整个查询包装成一个视图</p><p>优点：</p><ol><li>重用SQL语句</li><li>简化复杂的SQL操作</li><li>使用表的的组成部分而不是整个表</li><li>保护数据</li></ol><p>视图可以嵌套，即一个视图可以从其他视图获得数据</p><p>视图的操作语句：</p><ul><li>CREATE VIEW; 创建视图</li><li>SHOW CREATE VIEW viewname;查看创建视图的语句</li><li>DROP VIEW viewname;删除视图</li><li>CREATE OR REPLACE VIEW 视图存在，则更新；不存在，则创建</li></ul><p>CREATE VIEW aaa AS SELECT ~ 创建一个视图</p><p>接下来，可以对视图进行操作，例如：SELECT * FROM aaa;</p><p>*视图可以用于数据的更新、插入和删除，但是一般来说，应该只将视图用于数据的检索</p><h4 id="10-存储过程"><a href="#10-存储过程" class="headerlink" title="10.存储过程"></a>10.存储过程</h4><p>创建存储过程：</p><pre><code>CREATE PROCEDURE aaa()
+BEGIN
+    SELECT a FROM b;
+END;
+</code></pre><p>DELIMITER &#x2F;&#x2F; 把&#x2F;&#x2F;作为新的语句结束符</p><p>DELIMITER ; 重新把;作为MySQL语句结束符号</p><p>调用上面的存储过程：<br>CALL aaa();他将会执行定义的操作过程</p><p>删除过程：DROP PROCEDURE aaa;<br>优化版本：DROP PROCEDURE IF EXISTS aaa;</p><p>SHOW CREATE PROCEDURE aaa; 显示存储过程的CREATE语句</p><p>SHOW PROCEDURE STATUS; 显示存储过程的详细信息，可以通过 LIKE 语句对过程名进行过滤</p><p>如何使用一个存储过程：</p><pre><code>CREATE PROCEDURE ordertotal(
+    IN onumber INT,
+    OUT ototal DECIMAL(8,2)
+)
+BEGIN
+    SELECT sum(item_price*quantity)
+    FROM orderitems
+    WHERE order_number = onumber
+    INTO ototal;
+END;
+
+CALL ordertotal(20005, @total);
+
+SELECT @total;
+</code></pre><p>上面的操作中：</p><p>第一步是创建一个存储过程，并且IN表明这是一个输入的参数，OUT表明这是一个要输出的参数。INTO ototal表示把下面查询操作所检索出来的值放到ototal中。</p><p>第二步是调用存储过程，把20005传入，存储过程传出的参数用变量@total来保存</p><p>第三步是取得变量@total的值</p><h4 id="11-游标"><a href="#11-游标" class="headerlink" title="11.游标"></a>11.游标</h4><ol><li><p>声明（定义）游标</p></li><li><p>打开游标</p></li><li><p>操作</p></li><li><p>关闭游标</p><pre><code>DECLARE ordernumbers CURSOR FOR ~
+OPEN ordernumbers;
+CLOSE ordernumbers;
+</code></pre></li></ol><p>游标的操作要依附于存储过程来进行。</p><h4 id="12-触发器"><a href="#12-触发器" class="headerlink" title="12.触发器"></a>12.触发器</h4><p>当发生DELETE、INSERT、UPDATE时，会自动进行某些操作</p><pre><code>CREATE TRIGGER newproduct AFTER INSERT ON products FOR EACH ROW SELECT &quot;Product added&quot;;--创建触发器
+
+DROP TRIGGER newproduct;  --删除触发器
+</code></pre><p>只有表才支持触发器，视图不支持触发器。</p><pre><code>CREATE TRIGGER newproduct AFTER INSERT ON products FOR EACH ROW SELECT NEW.product;  -- 检索最新插入的那条数据的product列
+CREATE TRIGGER deleteorder BEFORE DELETE ON orders FOR EACH ROW
+BEGIN
+    INSERT INTO archive_orders(order_num) VALUES(OLD.oreder_num);
+END;
+</code></pre><p>– UPDATE 的触发器：NEW代表更新之后的值，OLD表示跟新之前的值</p><pre><code>CREATE TRIGGER updateevendor BEFORE UPDATE ON vendors FOR EACH ROW SET NEW.vend_state = Upper(NEW.vend_state);
+</code></pre><h4 id="13-事务处理"><a href="#13-事务处理" class="headerlink" title="13.事务处理"></a>13.事务处理</h4><pre><code>START TRANSACTION;
+DELETE FROM ordertotals;
+ROLLBACK;/COMMIT;
+
+SAVEPOINT delete1;
+ROLLBACK TO delete1;
+
+SET autocommit = 0;
+</code></pre><p>关闭自动提交（只对每一个连接有效，对数据库服务器无效）。</p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="MySQL 基础知识">https://www.nosuchfield.com/2015/12/12/MySQL-basics/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

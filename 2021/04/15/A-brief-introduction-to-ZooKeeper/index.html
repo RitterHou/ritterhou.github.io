@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>ZooKeeper的简单介绍 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="大数据,分布式系统"><meta name="description" content="&lt;p&gt;用了很久的ZooKeeper了，稍微做个总结。ZooKeeper（以下简称ZK）是一个分布式组件，基于类似Paxos的ZAB一致性算法来实现。ZK保存的数据结构类似于一般的文件系统，只不过在ZK中文件夹也可以拥有数据，整体文件结构为一棵树型。&lt;/p&gt;
+&lt;h2 id=&#34;安装ZooKeeper&#34;&gt;&lt;a href=&#34;#安装ZooKeeper&#34; class=&#34;headerlink&#34; title=&#34;安装ZooKeeper&#34;&gt;&lt;/a&gt;安装ZooKeeper&lt;/h2&gt;&lt;p&gt;去&lt;a href=&#34;http://zookeeper.apache.org/releases.html&#34;&gt;官网&lt;/a&gt;下载压缩包，随后使用&lt;code&gt;rsync&lt;/code&gt;同步到三台机器上，我使用如下三台机器&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;172.19.65.196
+172.19.72.108
+172.19.72.112
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;解压压缩包，使用&lt;code&gt;cp conf/zoo_sample.cfg conf/zoo.cfg&lt;/code&gt;得到配置文件，在三台机器的&lt;code&gt;conf/zoo.c"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">ZooKeeper的简单介绍</h1></div><div class="post-meta"><span class="post-time">2021-04-15</span></div><div class="post-content"><p>用了很久的ZooKeeper了，稍微做个总结。ZooKeeper（以下简称ZK）是一个分布式组件，基于类似Paxos的ZAB一致性算法来实现。ZK保存的数据结构类似于一般的文件系统，只不过在ZK中文件夹也可以拥有数据，整体文件结构为一棵树型。</p><h2 id="安装ZooKeeper"><a href="#安装ZooKeeper" class="headerlink" title="安装ZooKeeper"></a>安装ZooKeeper</h2><p>去<a target="_blank" rel="noopener" href="http://zookeeper.apache.org/releases.html">官网</a>下载压缩包，随后使用<code>rsync</code>同步到三台机器上，我使用如下三台机器</p><pre><code>172.19.65.196
+172.19.72.108
+172.19.72.112
+</code></pre><p>解压压缩包，使用<code>cp conf/zoo_sample.cfg conf/zoo.cfg</code>得到配置文件，在三台机器的<code>conf/zoo.cfg</code>中添加如下配置</p><pre><code>dataDir=/home/zookeeper/apache-zookeeper-3.8.0-bin/data
+
+server.1=172.19.65.196:2888:3888
+server.2=172.19.72.108:2888:3888
+server.3=172.19.72.112:2888:3888
+</code></pre><p>然后在三台机器的<code>dataDir</code>目录下创建<code>myid</code>文件</p><pre><code>vi /home/zookeeper/apache-zookeeper-3.8.0-bin/data/myid
+</code></pre><p>三台机器的myid文件中对应修改的内容如下</p><table><thead><tr><th align="center">机器</th><th align="center">内容</th></tr></thead><tbody><tr><td align="center">172.19.65.196</td><td align="center">1</td></tr><tr><td align="center">172.19.72.108</td><td align="center">2</td></tr><tr><td align="center">172.19.72.112</td><td align="center">3</td></tr></tbody></table><h3 id="启动ZK集群"><a href="#启动ZK集群" class="headerlink" title="启动ZK集群"></a>启动ZK集群</h3><p>修改完毕之后使用命令依次启动三台机器上的ZK</p><pre><code>./bin/zkServer.sh start
+</code></pre><p>使用命令<code>zkServer.sh status</code>可以查看三台机器的状态</p><pre><code>[zookeeper@lin-65-196 apache-zookeeper-3.8.0-bin]$ ./bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /home/zookeeper/apache-zookeeper-3.8.0-bin/bin/../conf/zoo.cfg
+Client port found: 2181. Client address: localhost. Client SSL: false.
+Mode: follower
+
+[zookeeper@lin-72-108 apache-zookeeper-3.8.0-bin]$ ./bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /home/zookeeper/apache-zookeeper-3.8.0-bin/bin/../conf/zoo.cfg
+Client port found: 2181. Client address: localhost. Client SSL: false.
+Mode: leader
+
+[zookeeper@lin-72-112-auto-5 apache-zookeeper-3.8.0-bin]$ ./bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /home/zookeeper/apache-zookeeper-3.8.0-bin/bin/../conf/zoo.cfg
+Client port found: 2181. Client address: localhost. Client SSL: false.
+Mode: follower
+</code></pre><p>可以发现108节点是当前的leader，我们使用<code>zkServer.sh stop</code>停止108节点上面的ZK进程，再看状态可以发现112节点成为了的新的leader了。</p><h2 id="使用ZooKeeper"><a href="#使用ZooKeeper" class="headerlink" title="使用ZooKeeper"></a>使用ZooKeeper</h2><p>在其它的机器上使用客户端zkCli连接ZK集群</p><pre><code>~ zkCli -server 172.19.65.196:2181,172.19.72.108:2181,172.19.72.112:2181
+Connecting to 172.19.65.196:2181,172.19.72.108:2181,172.19.72.112:2181
+Welcome to ZooKeeper!
+JLine support is enabled
+
+WATCHER::
+
+WatchedEvent state:SyncConnected type:None path:null
+[zk: 172.19.65.196:2181,172.19.72.108:2181,172.19.72.112:2181(CONNECTED) 0]
+</code></pre><p>成功连接zk集群，之后我们可以进行创建、删除、查询等等操作</p><pre><code>ls /
+create /Nanjing
+create /Nanjing/Yuhuatai
+ls /Nanjing/Yuhuatai
+create /Nanjing/Yuhuatai/Ruanjiangu &quot;Software&quot;
+get /Nanjing/Yuhuatai/Ruanjiangu
+delete /Nanjing/Yuhuatai/Ruanjiangu
+stat /Nanjing/Yuhuatai
+quit
+</code></pre><h3 id="ZK支持创建临时数据"><a href="#ZK支持创建临时数据" class="headerlink" title="ZK支持创建临时数据"></a>ZK支持创建临时数据</h3><p>临时数据在客户端的连接断开之后会自动删除</p><pre><code>create -e /Nanjing/Yuhuatai/Ruanjiangu &quot;tmp&quot;
+get /Nanjing/Yuhuatai/Ruanjiangu # 此时是有值的
+</code></pre><p>断开客户端连接，再重新连接zkServer</p><pre><code>get /Nanjing/Yuhuatai/Ruanjiangu
+</code></pre><p>此时执行上面的语句就获取不到值了</p><h3 id="对节点添加监听器"><a href="#对节点添加监听器" class="headerlink" title="对节点添加监听器"></a>对节点添加监听器</h3><p>通过<code>addWatch /Nanjing/Yuhuatai</code>添加对节点的监听器，之后打开一个新的zkCli执行命令<code>create /Nanjing/Yuhuatai/Ruanjiangu</code>。此时监听器会收到通知，详情如下</p><pre><code>[zk] addWatch /Nanjing/Yuhuatai
+[zk]
+WATCHER::
+
+WatchedEvent state:SyncConnected type:NodeCreated path:/Nanjing/Yuhuatai/Ruanjiangu
+</code></pre><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/r3.7.0/zookeeperAdmin.html#sc_zkMulitServerSetup">zkMulitServerSetup</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="ZooKeeper的简单介绍">https://www.nosuchfield.com/2021/04/15/A-brief-introduction-to-ZooKeeper/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag">分布式系统</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/" rel="tag">大数据</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

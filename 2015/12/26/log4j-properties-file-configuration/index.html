@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>log4j.properties 文件的配置 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="JavaWeb"><meta name="description" content="&lt;h4 id=&#34;1-全局log4j-rootLogger的配置&#34;&gt;&lt;a href=&#34;#1-全局log4j-rootLogger的配置&#34; class=&#34;headerlink&#34; title=&#34;1.全局log4j.rootLogger的配置&#34;&gt;&lt;/a&gt;1.全局log4j.rootLogger的配置&lt;/h4&gt;&lt;p&gt;log4j.rootLogger是用来配置log4j的全局配置的，一般可以写为：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;log4j.rootLogger = [ level ] , appenderName, appenderName, …
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;其中，level表示的是日志记录优先级，分为OFF、FATAL、ERROR、WARN、INFO、DEBUG、ALL或者自定义的级别。log4j建议只使用四个级别，优先级从高到低分别是ERROR、WARN、INFO、DEBUG。当定义了一个级别时，低于该级别的优先级就被忽略。例如，如果定义级别为INFO，那么DEBUG级别的日志信息就会被忽略了。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;appenderName 是在 Appende"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">log4j.properties 文件的配置</h1></div><div class="post-meta"><span class="post-time">2015-12-26</span></div><div class="post-content"><h4 id="1-全局log4j-rootLogger的配置"><a href="#1-全局log4j-rootLogger的配置" class="headerlink" title="1.全局log4j.rootLogger的配置"></a>1.全局log4j.rootLogger的配置</h4><p>log4j.rootLogger是用来配置log4j的全局配置的，一般可以写为：</p><pre><code>log4j.rootLogger = [ level ] , appenderName, appenderName, …
+</code></pre><p>其中，level表示的是日志记录优先级，分为OFF、FATAL、ERROR、WARN、INFO、DEBUG、ALL或者自定义的级别。log4j建议只使用四个级别，优先级从高到低分别是ERROR、WARN、INFO、DEBUG。当定义了一个级别时，低于该级别的优先级就被忽略。例如，如果定义级别为INFO，那么DEBUG级别的日志信息就会被忽略了。</p><p><strong>appenderName 是在 Appender 配置中使用的名称信息，一个 lo4j.rootLogger 中可以定义多个 appenderName ，然后通过他们的不同的名字来在 Appender 中分别使用。</strong></p><p>例如，下面这个语句表示定义了一个优先级别为DEBUG、有5个输出位置的log4j：</p><pre><code>log4j.rootLogger = debug,stdout,D,I,W,E
+</code></pre><h4 id="2-Appender的配置"><a href="#2-Appender的配置" class="headerlink" title="2.Appender的配置"></a>2.Appender的配置</h4><ol><li><p>配置日志的输出方式</p><p>log4j的输出方式的配置有以下几种类型，他用来控制log的输出位置：</p><pre><code>org.apache.log4j.ConsoleAppender（控制台）
+org.apache.log4j.FileAppender（文件）
+org.apache.log4j.DailyRollingFileAppender（每天产生一个日志文件）
+org.apache.log4j.RollingFileAppender（文件大小到达指定尺寸的时候产生一个新的文件）
+org.apache.log4j.WriterAppender（将日志信息以流格式发送到任意指定的地方）
+</code></pre><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName = xxx
+</code></pre></li><li><p>配置日志信息的格式（布局）</p><p>log4j的layout有以下几种的配置方式，他用来控制log的输出格式：</p><pre><code>org.apache.log4j.HTMLLayout（以HTML表格形式布局），  
+org.apache.log4j.PatternLayout（可以灵活地指定布局模式），  
+org.apache.log4j.SimpleLayout（包含日志信息的级别和信息字符串），  
+org.apache.log4j.TTCCLayout（包含日志产生的时间、线程、类别等等信息）
+</code></pre><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.layout = xxx
+</code></pre><p>如果我们使用了<strong>org.apache.log4j.PatternLayout</strong>这个配置，那我们就可以使用类似于 C 的格式化输出的方式来更灵活的控制我们的 log 的输出格式，格式化输出命令如下所示：</p><pre><code>%m 输出代码中指定的消息
+%p 输出优先级，即DEBUG，INFO，WARN，ERROR，FATAL  
+%r 输出自应用启动到输出该log信息耗费的毫秒数  
+%c 输出所属的类目，通常就是所在类的全名  
+%t 输出产生该日志事件的线程名
+%n 输出一个回车换行符，Windows平台为&quot;\r\n&quot;，Unix平台为&quot;\n&quot;
+%d 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d&#123;yyy MMM dd HH:mm:ss,SSS&#125;
+%l 输出日志事件的发生位置，包括类目名、发生的线程，以及在代码中的行数
+</code></pre><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.layout.ConversionPattern = %d&#123;yyyy-MM-dd HH:mm:ss,SSS&#125; method:%l%n%m%n
+</code></pre></li><li><p>其他的一些属性配置信息</p><p><strong>Threshold属性</strong>，用来控制输出日志的优先级别，同 log4j.rootLogger 中的 level 类似，但是 Threshold 只对当前的 appender 有效</p><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.Threshold = DEBUG
+</code></pre><p><strong>File 和 Append 属性</strong>，当我们要把日志输出到文件的时候，需要用这两个属性来配置日志的输出位置和是否覆盖原来文件中日志（显然一般是不覆盖，而是在后面追加新的日志的）</p><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.File = $&#123;webapp.root&#125;/WEB-INF/logs/log.log
+log4j.appender.appenderName.Append = true
+</code></pre><p><strong>把日志输出到系统的标准输出上</strong>：</p><pre><code> log4j.appender.appenderName.Target = System.out
+</code></pre></li></ol><h4 id="3-一个典型的例子"><a href="#3-一个典型的例子" class="headerlink" title="3.一个典型的例子"></a>3.一个典型的例子</h4><pre><code>### 定义了log4j.rootLogger，优先级为debug，即包含了所有的优先级日志 ###
+### 定义了三个 Appender，分别为 stdout, D, E ###
+log4j.rootLogger = debug,stdout,D,E
+
+### 设置 stdout，它实现了控制台日志输出 ###
+log4j.appender.stdout = org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target = System.out
+### 使用了自定义的布局模式 ###
+log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
+### 自定义了输出模式 ###
+log4j.appender.stdout.layout.ConversionPattern = [%-5p] %d&#123;yyyy-MM-dd HH:mm:ss,SSS&#125; method:%l%n%m%n
+
+### 设置 D，它实现了把日志输出到文件，优先级为DEBUG ###
+log4j.appender.D = org.apache.log4j.DailyRollingFileAppender
+### 把日志输出到指定的文件之中 ###
+log4j.appender.D.File = $&#123;webapp.root&#125;/WEB-INF/logs/log.log
+### 在现有的日志后面追加新的日志 ###
+log4j.appender.D.Append = true
+log4j.appender.D.Threshold = DEBUG
+log4j.appender.D.layout = org.apache.log4j.PatternLayout
+log4j.appender.D.layout.ConversionPattern = %-d&#123;yyyy-MM-dd HH:mm:ss&#125;  [ %t:%r ] - [ %p ]  %m%n
+
+### 输出ERROR 以上级别的日志到 logs/error.log ###
+log4j.appender.E = org.apache.log4j.DailyRollingFileAppender
+log4j.appender.E.File = $&#123;webapp.root&#125;/WEB-INF/logs/error.log
+log4j.appender.E.Append = true
+log4j.appender.E.Threshold = ERROR
+log4j.appender.E.layout = org.apache.log4j.PatternLayout
+log4j.appender.E.layout.ConversionPattern = %-d&#123;yyyy-MM-dd HH:mm:ss&#125;  [ %t:%r ] - [ %p ]  %m
+</code></pre><p>关于如何搭建 log4j 的使用环境，可以参阅<a href="/2015/12/26/build-a-log4j-use-environment/">搭建一个 log4j 使用环境</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="log4j.properties 文件的配置">https://www.nosuchfield.com/2015/12/26/log4j-properties-file-configuration/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/JavaWeb/" rel="tag">JavaWeb</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>
