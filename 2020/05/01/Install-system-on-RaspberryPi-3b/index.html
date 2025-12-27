@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>树莓派3b安装系统 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="操作系统,树莓派,ssh,无线网"><meta name="description" content="&lt;p&gt;去地址&lt;a href=&#34;https://www.raspberrypi.org/downloads/raspbian/&#34;&gt;https://www.raspberrypi.org/downloads/raspbian/&lt;/a&gt;下载树莓派的操作系统镜像，这里我选择的是&lt;code&gt;Raspbian Buster Lite&lt;/code&gt;类型的镜像，你可以通过如下的磁力链接直接下载该镜像&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;magnet:?xt=urn:btih:2213F24BCA4031663B3DFA99FB554DCE8CFCB5DA
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;下载了镜像之后我们可以通过工具&lt;a href=&#34;https://www.balena.io/etcher/&#34;&gt;balenaEtcher&lt;/a&gt;把我们的镜像写入到树莓派的SD卡中去，具体步骤如下。&lt;/p&gt;
+&lt;p&gt;选择我们之前下载的镜像（即zip文件）以及相应的SD卡&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/images/20200501/1.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;选择把镜像写入到SD中&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/i"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">树莓派3b安装系统</h1></div><div class="post-meta"><span class="post-time">2020-05-01</span></div><div class="post-content"><p>去地址<a target="_blank" rel="noopener" href="https://www.raspberrypi.org/downloads/raspbian/">https://www.raspberrypi.org/downloads/raspbian/</a>下载树莓派的操作系统镜像，这里我选择的是<code>Raspbian Buster Lite</code>类型的镜像，你可以通过如下的磁力链接直接下载该镜像</p><pre><code>magnet:?xt=urn:btih:2213F24BCA4031663B3DFA99FB554DCE8CFCB5DA
+</code></pre><p>下载了镜像之后我们可以通过工具<a target="_blank" rel="noopener" href="https://www.balena.io/etcher/">balenaEtcher</a>把我们的镜像写入到树莓派的SD卡中去，具体步骤如下。</p><p>选择我们之前下载的镜像（即zip文件）以及相应的SD卡</p><p><img src="/images/20200501/1.png"></p><p>选择把镜像写入到SD中</p><p><img src="/images/20200501/2.png"></p><p>镜像写入完毕会进行校验</p><p><img src="/images/20200501/3.png"></p><p>校验完毕则镜像已经成功的写入到SD卡中了</p><p><img src="/images/20200501/4.png"></p><p>镜像写入成功后，该SD卡的名称被修改为boot，我们需要对镜像做一些修改使得树莓派支持Wi-Fi自动连接和SSH访问。</p><p>首先我们打开树莓派镜像数据的文件夹</p><pre><code>cd /Volumes/boot
+</code></pre><p>之后我们创建Wi-Fi设置的文件</p><pre><code>vi wpa_supplicant.conf
+</code></pre><p>并输入你的Wi-Fi设置，这些设置使得树莓派在启动时可以自动的连接到你的无线网络</p><pre><code>country=CN
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network=&#123;
+    ssid=&quot;your_wifi_ssid&quot;
+    psk=&quot;your_wifi_password&quot;
+    key_mgmt=WPA-PSK
+&#125;
+</code></pre><p>之后我们继续在当前目录创建ssh文件以使得树莓派支持SSH访问</p><pre><code>touch ssh
+</code></pre><p>以上的设置修改完毕之后我们就弹出SD卡，然后把SD卡插入到树莓派中并给树莓派通上电，之后树莓派就会自动启动并连上你的Wi-Fi无线网络。</p><p><img src="/images/20200501/5.png"></p><p>随后我们就可以使用SSH访问树莓派了，树莓派SSH的默认密码是<code>raspberry</code></p><pre><code>➜ ~ ssh pi@192.168.0.102
+The authenticity of host &#39;192.168.0.102 (192.168.0.102)&#39; can&#39;t be established.
+ECDSA key fingerprint is SHA256:EgcNGDSXadaDuD9f2xbzaP753xzRpEc3pCh6Xrr3Lfw.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &#39;192.168.0.102&#39; (ECDSA) to the list of known hosts.
+pi@192.168.0.102&#39;s password:
+Linux raspberrypi 4.19.97-v7+ #1294 SMP Thu Jan 30 13:15:58 GMT 2020 armv7l
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+
+SSH is enabled and the default password for the &#39;pi&#39; user has not been changed.
+This is a security risk - please login as the &#39;pi&#39; user and type &#39;passwd&#39; to set a new password.
+
+pi@raspberrypi:~ $ 
+</code></pre><p>至此树莓派已经成功启动并且可以进行SSH远程访问了，你也可以在路由器管理界面把树莓派的MAC地址和IP地址进行绑定，这样之后就都可以使用固定的IP地址访问树莓派了。</p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="树莓派3b安装系统">https://www.nosuchfield.com/2020/05/01/Install-system-on-RaspberryPi-3b/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%97%A0%E7%BA%BF%E7%BD%91/" rel="tag">无线网</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag">树莓派</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

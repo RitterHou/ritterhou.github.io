@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>APISIX的使用 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="APISIX,Lua,网关,Nginx,运维,Openresty"><meta name="description" content="&lt;p&gt;APISIX是一款基于Openresty的动态、实时、高性能API网关，它提供了负载均衡、服务熔断等丰富的功能。&lt;/p&gt;
+&lt;h3 id=&#34;安装服务&#34;&gt;&lt;a href=&#34;#安装服务&#34; class=&#34;headerlink&#34; title=&#34;安装服务&#34;&gt;&lt;/a&gt;安装服务&lt;/h3&gt;&lt;p&gt;在&lt;a href=&#34;https://github.com/apache/apisix-docker&#34;&gt;https://github.com/apache/apisix-docker&lt;/a&gt;中提供了很多很便利的docker配置，可以很方便的启动APISIX的相关服务。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;~ git clone git@github.com:apache/apisix-docker.git
+~ cd apisix-docker/example/
+~ docker-compose up
+Starting example_etcd_1             ... done
+Starting example_grafana_1          ... done
+Starting example_ap"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">APISIX的使用</h1></div><div class="post-meta"><span class="post-time">2023-10-12</span></div><div class="post-content"><p>APISIX是一款基于Openresty的动态、实时、高性能API网关，它提供了负载均衡、服务熔断等丰富的功能。</p><h3 id="安装服务"><a href="#安装服务" class="headerlink" title="安装服务"></a>安装服务</h3><p>在<a target="_blank" rel="noopener" href="https://github.com/apache/apisix-docker">https://github.com/apache/apisix-docker</a>中提供了很多很便利的docker配置，可以很方便的启动APISIX的相关服务。</p><pre><code>~ git clone git@github.com:apache/apisix-docker.git
+~ cd apisix-docker/example/
+~ docker-compose up
+Starting example_etcd_1             ... done
+Starting example_grafana_1          ... done
+Starting example_apisix-dashboard_1 ... done
+Starting example_web2_1             ... done
+Starting example_web1_1             ... done
+Starting example_prometheus_1       ... done
+Starting example_apisix_1           ... done
+Attaching to example_grafana_1, example_etcd_1, example_apisix-dashboard_1, example_web1_1, example_web2_1, example_prometheus_1, example_apisix_1
+</code></pre><p>如上启动了7个容器，分别是：</p><ul><li>配置中心：etcd</li><li>展示prometheus的指标：grafana</li><li>apisix的管理控制台：apisix-dashboard</li><li>测试服务：web2</li><li>测试服务：web1</li><li>采集apisix的指标：prometheus</li><li>apisix本体</li></ul><p>接下来我们可以测试一下apisix</p><pre><code>~ curl http://127.0.0.1:9180/apisix/admin/routes -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; 
+&#123;&quot;total&quot;:0,&quot;list&quot;:[]&#125;
+</code></pre><p>如上命令用于查看apisix的所有路由信息，使用默认的<code>API-KEY</code>。</p><h3 id="使用Admin-API管理路由"><a href="#使用Admin-API管理路由" class="headerlink" title="使用Admin API管理路由"></a>使用Admin API管理路由</h3><p>路由用于通过规则匹配客户端的请求，并根据请求加载相应的插件，最后将请求转发到指定的上游服务。由此可知路由由三部分组成</p><ol><li>客户端请求的匹配规则：包含<code>method</code>、<code>host</code>、<code>uri</code>等</li><li>插件，例如流控、安全认证等等，插件是可选的</li><li>上游服务</li></ol><p>APISIX的Admin接口都采用了Restful风格，路由资源的地址为<code>/apisix/admin/routes/&#123;id&#125;</code>，它的操作接口如下</p><table><thead><tr><th align="left">方法</th><th align="left">路径</th><th align="left">功能</th></tr></thead><tbody><tr><td align="left">GET</td><td align="left">&#x2F;apisix&#x2F;admin&#x2F;routes</td><td align="left">获取资源列表</td></tr><tr><td align="left">GET</td><td align="left">&#x2F;apisix&#x2F;admin&#x2F;routes&#x2F;{id}</td><td align="left">获取指定资源</td></tr><tr><td align="left">PUT</td><td align="left">&#x2F;apisix&#x2F;admin&#x2F;routes&#x2F;{id}</td><td align="left">根据指定id创建资源</td></tr><tr><td align="left">POST</td><td align="left">&#x2F;apisix&#x2F;admin&#x2F;routes</td><td align="left">创建资源，id自动生成</td></tr><tr><td align="left">DELETE</td><td align="left">&#x2F;apisix&#x2F;admin&#x2F;routes&#x2F;{id}</td><td align="left">删除指定id的资源</td></tr></tbody></table><p>接下来我们创建一个上游为web1的路由</p><pre><code>~ curl -X PUT http://127.0.0.1:9180/apisix/admin/routes/1 \
+    -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; -i -d &#39;
+&#123;
+    &quot;methods&quot;: [&quot;GET&quot;],
+    &quot;uri&quot;: &quot;/web1&quot;,
+    &quot;upstream&quot;: &#123;
+        &quot;type&quot;: &quot;roundrobin&quot;,
+        &quot;nodes&quot;: &#123;
+            &quot;web1:80&quot;: 1
+        &#125;
+    &#125;
+&#125;&#39;
+HTTP/1.1 201 Created
+...
+
+&#123;&quot;key&quot;:&quot;/apisix/routes/1&quot;,&quot;value&quot;:&#123;&quot;status&quot;:1,&quot;methods&quot;:[&quot;GET&quot;],&quot;id&quot;:&quot;1&quot;,&quot;priority&quot;:0,&quot;uri&quot;:&quot;/web1&quot;,&quot;update_time&quot;:1706606490,&quot;upstream&quot;:&#123;&quot;scheme&quot;:&quot;http&quot;,&quot;hash_on&quot;:&quot;vars&quot;,&quot;type&quot;:&quot;roundrobin&quot;,&quot;nodes&quot;:&#123;&quot;web1:80&quot;:1&#125;,&quot;pass_host&quot;:&quot;pass&quot;&#125;,&quot;create_time&quot;:1706606490&#125;&#125;
+</code></pre><p>返回201表示创建成功，之后我们可以访问这个新建的路由接口</p><pre><code>~ curl http://127.0.0.1:9080/web1
+hello web1
+</code></pre><h4 id="上游（Upstream）"><a href="#上游（Upstream）" class="headerlink" title="上游（Upstream）"></a>上游（Upstream）</h4><p>除了直接使用服务之外，为了方便，我们还可以把服务的资源直接定义为一个上游（Upstream）</p><pre><code>~ curl -X PUT http://127.0.0.1:9180/apisix/admin/upstreams/1 \
+    -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; -i -d &#39;
+&#123;
+    &quot;type&quot;: &quot;roundrobin&quot;,
+    &quot;nodes&quot;: &#123;
+        &quot;web1:80&quot;: 1
+    &#125;
+&#125;&#39;
+HTTP/1.1 201 Created
+...
+
+&#123;&quot;key&quot;:&quot;/apisix/upstreams/1&quot;,&quot;value&quot;:&#123;&quot;scheme&quot;:&quot;http&quot;,&quot;create_time&quot;:1706606769,&quot;hash_on&quot;:&quot;vars&quot;,&quot;id&quot;:&quot;1&quot;,&quot;type&quot;:&quot;roundrobin&quot;,&quot;update_time&quot;:1706606769,&quot;pass_host&quot;:&quot;pass&quot;,&quot;nodes&quot;:&#123;&quot;web1:80&quot;:1&#125;&#125;&#125;
+</code></pre><p>如上我们把web1这个服务定义为上游（Upstream）<code>1</code>，之后我们可以直接使用这个上游构建路由</p><pre><code>~ curl -X PUT http://127.0.0.1:9180/apisix/admin/routes/1 \
+    -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; -i -d &#39;
+&#123;
+    &quot;methods&quot;: [&quot;GET&quot;],
+    &quot;uri&quot;: &quot;/web1&quot;,
+    &quot;upstream_id&quot;: &quot;1&quot;
+&#125;&#39;
+HTTP/1.1 200 OK
+...
+
+&#123;&quot;key&quot;:&quot;/apisix/routes/1&quot;,&quot;value&quot;:&#123;&quot;upstream_id&quot;:&quot;1&quot;,&quot;methods&quot;:[&quot;GET&quot;],&quot;status&quot;:1,&quot;priority&quot;:0,&quot;uri&quot;:&quot;/web1&quot;,&quot;update_time&quot;:1706606904,&quot;id&quot;:&quot;1&quot;,&quot;create_time&quot;:1706606490&#125;&#125;
+</code></pre><p>之后访问地址还是一样的效果</p><pre><code>~ curl http://127.0.0.1:9080/web1                          
+hello web1
+</code></pre><p>查看我们刚刚创建的路由和上游</p><pre><code>~ curl http://127.0.0.1:9180/apisix/admin/upstreams -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;
+&#123;&quot;total&quot;:1,&quot;list&quot;:[&#123;&quot;key&quot;:&quot;/apisix/upstreams/1&quot;,&quot;value&quot;:&#123;&quot;scheme&quot;:&quot;http&quot;,&quot;create_time&quot;:1706607099,&quot;hash_on&quot;:&quot;vars&quot;,&quot;nodes&quot;:&#123;&quot;web1:80&quot;:1&#125;,&quot;type&quot;:&quot;roundrobin&quot;,&quot;id&quot;:&quot;1&quot;,&quot;pass_host&quot;:&quot;pass&quot;,&quot;update_time&quot;:1706607099&#125;,&quot;createdIndex&quot;:35,&quot;modifiedIndex&quot;:35&#125;]&#125;
+~ curl http://127.0.0.1:9180/apisix/admin/routes -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;  
+&#123;&quot;total&quot;:1,&quot;list&quot;:[&#123;&quot;key&quot;:&quot;/apisix/routes/1&quot;,&quot;value&quot;:&#123;&quot;create_time&quot;:1706607103,&quot;methods&quot;:[&quot;GET&quot;],&quot;id&quot;:&quot;1&quot;,&quot;priority&quot;:0,&quot;uri&quot;:&quot;/web1&quot;,&quot;upstream_id&quot;:&quot;1&quot;,&quot;update_time&quot;:1706607103,&quot;status&quot;:1&#125;,&quot;createdIndex&quot;:36,&quot;modifiedIndex&quot;:36&#125;]&#125;
+</code></pre><p>我们还可以删除我们刚刚创建的路由和上游</p><pre><code>~ curl -X DELETE http://127.0.0.1:9180/apisix/admin/routes/1 -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; 
+&#123;&quot;key&quot;:&quot;/apisix/routes/1&quot;,&quot;deleted&quot;:&quot;1&quot;&#125;
+~ curl -X DELETE http://127.0.0.1:9180/apisix/admin/upstreams/1 -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; 
+&#123;&quot;key&quot;:&quot;/apisix/upstreams/1&quot;,&quot;deleted&quot;:&quot;1&quot;&#125;
+</code></pre><h4 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h4><p>APISIX支持很多插件，以常见的流控插件为例</p><pre><code>~ curl -X PUT http://127.0.0.1:9180/apisix/admin/routes/1 \ 
+    -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; -i -d &#39;
+&#123;
+    &quot;methods&quot;: [&quot;GET&quot;],
+    &quot;uri&quot;: &quot;/web1&quot;,
+    &quot;plugins&quot;: &#123;
+        &quot;limit-count&quot;: &#123;
+            &quot;count&quot;: 2,
+            &quot;time_window&quot;: 10,
+            &quot;rejected_code&quot;: 503,
+            &quot;key&quot;: &quot;remote_addr&quot;
+        &#125;,
+        &quot;prometheus&quot;: &#123;&#125;
+    &#125;,
+    &quot;upstream&quot;: &#123;
+        &quot;type&quot;: &quot;roundrobin&quot;,
+        &quot;nodes&quot;: &#123;
+            &quot;web1:80&quot;: 1
+        &#125;
+    &#125;
+&#125;&#39;
+HTTP/1.1 200 OK
+...
+</code></pre><p>如上创建了一个路由，它使用了插件<code>limit-count</code>，参数表示每个远程地址每10秒钟最多请求两次，否则就会得到503错误。我们测试可以看到请求两次之后就开始报503错误，等待一会儿之后服务又恢复了</p><pre><code>~ curl http://127.0.0.1:9080/web1                                                                
+hello web1%
+~ curl http://127.0.0.1:9080/web1
+hello web1%
+~ curl http://127.0.0.1:9080/web1
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;503 Service Temporarily Unavailable&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;503 Service Temporarily Unavailable&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;openresty&lt;/center&gt;
+&lt;p&gt;&lt;em&gt;Powered by &lt;a href=&quot;https://apisix.apache.org/&quot;&gt;APISIX&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;&lt;/body&gt;
+&lt;/html&gt;
+~ curl http://127.0.0.1:9080/web1
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;503 Service Temporarily Unavailable&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;503 Service Temporarily Unavailable&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;openresty&lt;/center&gt;
+&lt;p&gt;&lt;em&gt;Powered by &lt;a href=&quot;https://apisix.apache.org/&quot;&gt;APISIX&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;&lt;/body&gt;
+&lt;/html&gt;
+~ curl http://127.0.0.1:9080/web1
+hello web1%
+</code></pre><p>与上游类似，我们也可以定义一个<code>插件配置</code>，之后在路由中直接使用</p><pre><code>~ curl http://127.0.0.1:9180/apisix/admin/plugin_configs/1 \
+-H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; -X PUT -i -d &#39;
+&#123;
+    &quot;desc&quot;: &quot;enable limit-count plugin&quot;,
+    &quot;plugins&quot;: &#123;
+        &quot;limit-count&quot;: &#123;
+            &quot;count&quot;: 2,
+            &quot;time_window&quot;: 10,
+            &quot;rejected_code&quot;: 503
+        &#125;
+    &#125;
+&#125;&#39;
+HTTP/1.1 201 Created
+...
+
+&#123;&quot;key&quot;:&quot;/apisix/plugin_configs/1&quot;,&quot;value&quot;:&#123;&quot;create_time&quot;:1706607965,&quot;desc&quot;:&quot;enable limit-count plugin&quot;,&quot;plugins&quot;:&#123;&quot;limit-count&quot;:&#123;&quot;count&quot;:2,&quot;time_window&quot;:10,&quot;key_type&quot;:&quot;var&quot;,&quot;rejected_code&quot;:503,&quot;policy&quot;:&quot;local&quot;,&quot;allow_degradation&quot;:false,&quot;show_limit_quota_header&quot;:true,&quot;key&quot;:&quot;remote_addr&quot;&#125;&#125;,&quot;id&quot;:&quot;1&quot;,&quot;update_time&quot;:1706607965&#125;&#125;
+</code></pre><p>如上定义了一个id为<code>1</code>的插件，之后我们使用它构建一个路由</p><pre><code>~ curl -X PUT http://127.0.0.1:9180/apisix/admin/routes/1 \
+    -H &#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39; -i -d &#39;
+&#123;
+    &quot;methods&quot;: [&quot;GET&quot;],
+    &quot;uri&quot;: &quot;/web1&quot;,
+    &quot;upstream_id&quot;: &quot;1&quot;,
+    &quot;plugin_config_id&quot;: &quot;1&quot;
+&#125;&#39;
+HTTP/1.1 200 OK
+...
+
+&#123;&quot;key&quot;:&quot;/apisix/routes/1&quot;,&quot;value&quot;:&#123;&quot;create_time&quot;:1706607103,&quot;plugin_config_id&quot;:&quot;1&quot;,&quot;priority&quot;:0,&quot;update_time&quot;:1706608060,&quot;methods&quot;:[&quot;GET&quot;],&quot;uri&quot;:&quot;/web1&quot;,&quot;upstream_id&quot;:&quot;1&quot;,&quot;status&quot;:1,&quot;id&quot;:&quot;1&quot;&#125;&#125;
+</code></pre><p>之后访问地址<code>http://127.0.0.1:9080/web1</code>的效果和前面是一样的。</p><h4 id="Dashboard"><a href="#Dashboard" class="headerlink" title="Dashboard"></a>Dashboard</h4><p>apisix还可以使用Dashboard来管理路由，浏览器访问<a target="_blank" rel="noopener" href="http://127.0.0.1:9000/">http://127.0.0.1:9000</a>即可</p><p><img src="/images/20231012/1.png"></p><p>默认的用户名和密码都是<code>admin</code>。登录之后我们就可以进行管理了，例如要新建一个路由</p><p><img src="/images/20231012/2.png"></p><p>我们依次设置路由的名称、path、method以及上游信息</p><p><img src="/images/20231012/3.jpg"></p><p>创建完成之后就可以在路由列表看到我们刚刚创建的路由了</p><p><img src="/images/20231012/4.png"></p><p>之后访问我们刚刚创建的路由，和使用AdminAPI创建的效果是一样的</p><pre><code>~ curl http://127.0.0.1:9080/web2
+hello web2
+</code></pre><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.aneasystone.com/archives/2023/02/apisix-notes.html">APISIX 使用小记</a><br><a target="_blank" rel="noopener" href="https://apisix.apache.org/docs/apisix/admin-api/">https://apisix.apache.org/docs/apisix/admin-api/</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="APISIX的使用">https://www.nosuchfield.com/2023/10/12/APISIX-usage/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/APISIX/" rel="tag">APISIX</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/Lua/" rel="tag">Lua</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/Openresty/" rel="tag">Openresty</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>通过树莓派使局域网设备访问 shadowsocks 代理 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="科学上网"><meta name="description" content="&lt;p&gt;光这篇文章的名字我就觉得很拗口，不过想来想去也没太好的句子组织方式 …&lt;/p&gt;
+&lt;p&gt;言归正传，这篇博文主要目的是描述如何在局域网内通过树莓派来搭建一个代理服务器，之后使得像手机或者 iPad 这类的设备可以通过设置代理到树莓派来实现科学上网。这篇教程主要包含了以下几个步骤：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在墙外设置一个 shadowsocks 服务器端；&lt;/li&gt;
+&lt;li&gt;将树莓派作为一个 shadowsocks 客户端并且连接到上面的服务端上；&lt;/li&gt;
+&lt;li&gt;通过 polipo 把 shadowsocks 的 socks5 代理转成 HTTP 代理；&lt;/li&gt;
+&lt;li&gt;配置 PAC 文件，使得终端设备（此处指手机或者iPad）可以实现智能域名代理功能。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;1-配置shadowsocks服务器&#34;&gt;&lt;a href=&#34;#1-配置shadowsocks服务器&#34; class=&#34;headerlink&#34; title=&#34;1. 配置shadowsocks服务器&#34;&gt;&lt;/a&gt;1. 配置shadowsocks服务器&lt;/h3&gt;&lt;p&gt;这一步的选择其实比较多：&lt;/p&gt;
+"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">通过树莓派使局域网设备访问 shadowsocks 代理</h1></div><div class="post-meta"><span class="post-time">2016-10-09</span></div><div class="post-content"><p>光这篇文章的名字我就觉得很拗口，不过想来想去也没太好的句子组织方式 …</p><p>言归正传，这篇博文主要目的是描述如何在局域网内通过树莓派来搭建一个代理服务器，之后使得像手机或者 iPad 这类的设备可以通过设置代理到树莓派来实现科学上网。这篇教程主要包含了以下几个步骤：</p><ol><li>在墙外设置一个 shadowsocks 服务器端；</li><li>将树莓派作为一个 shadowsocks 客户端并且连接到上面的服务端上；</li><li>通过 polipo 把 shadowsocks 的 socks5 代理转成 HTTP 代理；</li><li>配置 PAC 文件，使得终端设备（此处指手机或者iPad）可以实现智能域名代理功能。</li></ol><h3 id="1-配置shadowsocks服务器"><a href="#1-配置shadowsocks服务器" class="headerlink" title="1. 配置shadowsocks服务器"></a>1. 配置shadowsocks服务器</h3><p>这一步的选择其实比较多：</p><ul><li>如果你不想自己购买服务器，那么可以直接购买别人提供的 shadowsocks 服务，一般出售 shadowsocks 服务的人都会提供给你服务器的地址、端口号、shadowsocks 密码等等信息，获取到这些信息之后，你就算拥有了一个 shadowsocks 服务了。</li><li>如果你拥有了一台墙外的服务器并且想自己搭建 shadowsocks 服务，那么可以参考<a target="_blank" rel="noopener" href="https://www.google.com/?q=ss%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA">这里</a>，这一部分的教程相当多，不多说了。</li></ul><h3 id="2-设置树莓派作为-shadowsocks-客户端"><a href="#2-设置树莓派作为-shadowsocks-客户端" class="headerlink" title="2. 设置树莓派作为 shadowsocks 客户端"></a>2. 设置树莓派作为 shadowsocks 客户端</h3><p>我的树莓派是连在无线路由器上的，我可以直接在局域网内通过 SSH 连接到树莓派上进行相关的操作。</p><ol><li><p>安装 Python 的包管理工具 pip，如果已安装，则略过这一步：</p><pre><code> apt-get install python-pip
+</code></pre></li><li><p>安装 shadowsocks 客户端：</p><pre><code> pip install shadowsocks
+</code></pre></li><li><p>新建一个文件，位置和名称没有限制（文件后缀名最好为 json），比如我在<code>/home/pi</code>下新建一个文件 ss.json，在文件中输入如下内容：</p><pre><code> &#123;
+     &quot;server&quot;: &quot;xxx.xxx.xxx.xxx&quot;,
+     &quot;server_port&quot;: 1080,
+     &quot;local_address&quot;: &quot;127.0.0.1&quot;,
+     &quot;local_port&quot;: 1080,
+     &quot;password&quot;: &quot;xxxxxx&quot;,
+     &quot;timeout&quot;: 300,
+     &quot;method&quot;: &quot;aes-256-cfb&quot;,
+     &quot;fast_open&quot;: false
+ &#125;
+</code></pre></li></ol><p><em>server</em> 是服务器的地址；<em>server_port</em> 是服务器运行的 shadowsocks 的端口号；<em>local_address</em> 和 <em>local_port</em> 是本地的地址和端口号；<em>password</em> 是密码；<em>method</em> 是加密方式，需要和服务器保持一致。</p><ol start="4"><li><p>启动本地的 shadowsocks 客户端，本地客户端启动命令如下所示：</p><pre><code> sslocal -c /home/pi/ss.json
+</code></pre><p>如果想要让客户端在后台执行，可以执行：</p><pre><code> nohup sslocal -c /home/pi/ss.json &amp;
+</code></pre></li></ol><p>此时，树莓派上的 shadowsocks 应该已经成功启动了，但是还没没有办法直接使用，因为这里的 shadowsocks 客户端使用的是 SOCK5 代理，我们需要通过 polipo 把其转换成 HTTP 代理后才能让其他设备访问。</p><h3 id="3-通过-polipo-把-socks5-代理转成-HTTP-代理"><a href="#3-通过-polipo-把-socks5-代理转成-HTTP-代理" class="headerlink" title="3. 通过 polipo 把 socks5 代理转成 HTTP 代理"></a>3. 通过 polipo 把 socks5 代理转成 HTTP 代理</h3><ol><li><p>安装 polipo：</p><pre><code> apt-get install polipo
+</code></pre></li><li><p>打开文件<code>/etc/polipo/config</code>，修改成如下样式，这里的 1080 端口就是上面我们所设置 shadowsocks 客户端所运行的端口，可以根据需要灵活更改：</p><pre><code> proxyAddress = &quot;0.0.0.0&quot;
+
+ socksParentProxy = &quot;127.0.0.1:1080&quot;
+ socksProxyType = socks5
+ 
+ chunkHighMark = 50331648
+ objectHighMark = 16384
+ 
+ serverMaxSlots = 64
+ serverSlots = 16
+ serverSlots1 = 32
+</code></pre></li><li><p>重启 polipo 服务：</p><pre><code> /etc/init.d/polipo restart
+</code></pre></li><li><p>polipo 默认运行在 8123 端口，你可以通过下面这样的方式来测试其与 shadowsocks 的搭配是否正常工作：</p><pre><code> export http_proxy=&quot;http://127.0.0.1:8123/&quot;
+ curl ifconfig.me
+</code></pre></li></ol><p>如果一切正常工作的话，你应该可以看到的是 shadowsocks 远程服务器的 IP 地址。</p><p>此时，你已经可以在其他设备上通过设置代理到树莓派来科学上网了，下面以 iPad 为例来讲解：</p><ul><li>打开 设置 → 无线局域网 ，之后点击你所连接的无线网，在最下方的 HTTP 代理中选择<code>手动</code>，输入<code>服务器</code>为树莓派的 IP 地址，<code>端口</code>为 8123（即前面的 polipo 的运行端口），鉴定默认关闭就行，之后返回到主界面，一切正常的话，此时你已经能够在浏览器中进行科学上网了。</li></ul><p>但是我们也能发现，此时我们默认是对所有的域名进行了代理，这对国内的网站访问来说不仅速度变慢了，而且也浪费了 shadowsocks 的流量。下面介绍通过 PAC 实现域名的智能分类，保证只有指定的域名才会通过代理访问，其余还是通过原来的网络进行访问。</p><h3 id="4-通过-PAC-实现代理域名的分类"><a href="#4-通过-PAC-实现代理域名的分类" class="headerlink" title="4. 通过 PAC 实现代理域名的分类"></a>4. 通过 PAC 实现代理域名的分类</h3><p>PAC（Proxy auto-config）就是一个实现了一套代理规则的 JS 文件，它的语法通过 JavaScript 实现，<a target="_blank" rel="noopener" href="https://gist.github.com/RitterHou/dbadbeceb4e4841c1e4228e2ebc304e1">这里</a>给出了一个 PAC 文件示例，你可以直接拿去用。只需要修改以下几个地方：</p><ol><li>第 4 行的代理规则，<code>PROXY</code>代表了使用的是 HTTP 代理，后面跟随着的是代理设备的 IP 地址和端口号，在这里就是树莓派的 IP 地址和 polipo 的端口号。</li><li>rules 列表的值，如果想要自定义需要代理的域名，把这个域名添加到此列表中去即可，需要注意列表中的域名规则。</li></ol><p>我们把示例的文本保存在一个名为<code>gfwlist.js</code>的文件中，然后我们要保证 iPad 能够访问这个JS文件，在这里我是在树莓派上通过 Nginx 搭建了一个静态文件服务器，然后把<code>gfwlist.js</code>放在 Nginx 中所设定好的文件夹之下，就可访问到这个文件了。Nginx 的配置我也在下面给出来了：</p><pre><code>server &#123;
+    client_max_body_size 4G;
+    listen  80;
+    server_name    192.168.1.108;
+    root           /home/pi/gfw;
+    location / &#123;
+        autoindex on;
+        autoindex_exact_size on;
+        autoindex_localtime on; 
+    &#125;
+&#125;
+</code></pre><p>这里我的<code>gfwlist.js</code>文件放在了<code>/home/pi/gfw</code>文件夹下，启动 Nginx，访问 <a href="192.168.1.108/gfwlist.js">192.168.1.108&#x2F;gfwlist.js</a>，正常的话应该能够访问到<code>gfwlist.js</code>的内容。之后，再次打开 iPad 的无线网设置中的 HTTP 代理功能，这一次我们选择<code>自动</code>选项，然后在<code>URL</code>中填入：</p><pre><code>http://192.168.1.108/gfwlist.js
+</code></pre><p>回到首页，打开浏览器，发现此时上网是已经实现了智能代理。只有在访问 rules 中的域名的时候才会通过代理访问，其余域名将直接访问，至此已经实现了我们的需求。</p><p>实际上，自动代理的时候，iPad 会先获取<code>gfwlist.js</code>文件，然后根据里面设置好的规则来实现代理的功能。因为我们在 PAC 文件中已经写好了代理设备的主机和端口号以及代理域名的规则，所以 iPad 自然可以通过我们写好的规则来实现其代理功能。</p><h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><ol><li><a target="_blank" rel="noopener" href="https://aitanlu.com/ubuntu-shadowsocks-ke-hu-duan-pei-zhi.html">linux-ubuntu使用shadowsocks客户端配置</a></li><li><a target="_blank" rel="noopener" href="https://tyr.gift/pac-proxy.html">关于PAC自动代理和ios翻墙 | TyrChen’s Notes</a></li><li><a target="_blank" rel="noopener" href="https://www.v2ex.com/t/311273">想用树莓派做一个局域网代理，有什么好的解决方案吗？</a></li></ol></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="通过树莓派使局域网设备访问 shadowsocks 代理">https://www.nosuchfield.com/2016/10/09/access-to-the-ShadowSocks-proxy-through-raspberry-pi/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/" rel="tag">科学上网</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

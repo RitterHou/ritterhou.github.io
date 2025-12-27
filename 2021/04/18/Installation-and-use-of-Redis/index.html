@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>Redis服务的安装和使用 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="分布式系统,数据库"><meta name="description" content="&lt;p&gt;我在文章&lt;a href=&#34;/2018/11/29/Redis-failover/&#34;&gt;Redis failover&lt;/a&gt;中介绍过如何安装Redis并且通过sentinel（哨兵）实现Redis的高可用。随着Redis的不断更新，现在的Redis（我使用的版本是6.2.6）已经支持了集群功能，本文记录了如何搭建一个Redis集群并使用。&lt;/p&gt;
+&lt;p&gt;我们使用如下的6台机器来构建一个Redis集群&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;172.19.65.196&lt;/li&gt;
+&lt;li&gt;172.19.72.108&lt;/li&gt;
+&lt;li&gt;172.19.72.112&lt;/li&gt;
+&lt;li&gt;172.19.72.203&lt;/li&gt;
+&lt;li&gt;172.19.65.228&lt;/li&gt;
+&lt;li&gt;172.19.65.136&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;下载源码并编译&#34;&gt;&lt;a href=&#34;#下载源码并编译&#34; class=&#34;headerlink&#34; title=&#34;下载源码并编译&#34;&gt;&lt;/a&gt;下载源码并编译&lt;/h3&gt;&lt;p&gt;首先在172.19.65.196上下载Redis源代码并进行编译，这里我下载的版本是6.2.6&lt;/p&gt;
+&lt;p"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">Redis服务的安装和使用</h1></div><div class="post-meta"><span class="post-time">2021-04-18</span></div><div class="post-content"><p>我在文章<a href="/2018/11/29/Redis-failover/">Redis failover</a>中介绍过如何安装Redis并且通过sentinel（哨兵）实现Redis的高可用。随着Redis的不断更新，现在的Redis（我使用的版本是6.2.6）已经支持了集群功能，本文记录了如何搭建一个Redis集群并使用。</p><p>我们使用如下的6台机器来构建一个Redis集群</p><ol><li>172.19.65.196</li><li>172.19.72.108</li><li>172.19.72.112</li><li>172.19.72.203</li><li>172.19.65.228</li><li>172.19.65.136</li></ol><h3 id="下载源码并编译"><a href="#下载源码并编译" class="headerlink" title="下载源码并编译"></a>下载源码并编译</h3><p>首先在172.19.65.196上下载Redis源代码并进行编译，这里我下载的版本是6.2.6</p><pre><code>useradd -m redis
+su - redis
+wget https://download.redis.io/redis-stable.tar.gz
+tar -zxvf redis-stable.tar.gz
+cd redis-stable
+make
+</code></pre><p>编译生成的可执行文件在<code>src</code>目录下</p><table><thead><tr><th align="left">文件名</th><th align="left">功能</th></tr></thead><tbody><tr><td align="left">redis-server</td><td align="left">Redis服务的启动程序</td></tr><tr><td align="left">redis-cli</td><td align="left">Redis命令操作工具</td></tr><tr><td align="left">redis-sentinel</td><td align="left">Redis哨兵，在<a href="/2018/11/29/Redis-failover/">Redis failover</a>介绍过</td></tr><tr><td align="left">redis-benchmark</td><td align="left">Redis性能测试工具</td></tr><tr><td align="left">redis-check-rdb</td><td align="left">检查快照文件状态</td></tr><tr><td align="left">redis-check-aof</td><td align="left">检查aof文件状态</td></tr></tbody></table><p>这里我们只需要用到编译生成的redis-server程序，复制redis-server服务程序和redis.conf配置文件到用户根目录</p><pre><code>cp /home/redis/redis-stable/src/redis-server /home/redis
+cp /home/redis/redis-stable/redis.conf /home/redis
+</code></pre><h3 id="修改配置文件，同步文件到所有的机器"><a href="#修改配置文件，同步文件到所有的机器" class="headerlink" title="修改配置文件，同步文件到所有的机器"></a>修改配置文件，同步文件到所有的机器</h3><p>修改<code>redis.conf</code>文件，对一些属性进行设置，设置内容如下</p><pre><code>cluster-enabled yes                 # 启用Redis集群设置
+cluster-config-file nodes.conf      # 集群配置信息的存储文件，该文件由Redis管理，不需要手动修改
+cluster-node-timeout 15000          # 集群节点超过指定时间（毫秒）无响应，就认为该节点已经挂掉了
+appendonly yes                      # 开启aof方式的数据持久化
+bind 0.0.0.0                        # 允许任何主机访问Redis的服务
+</code></pre><p>随后我们将这两个文件同步到剩余的5台机器上，在5台机器上执行如下命令</p><pre><code>useradd -m redis
+su - redis
+rsync -azvhP root@172.19.65.196:/home/redis/redis-server :/home/redis/redis.conf ./
+</code></pre><h3 id="启动Redis进程并构建集群"><a href="#启动Redis进程并构建集群" class="headerlink" title="启动Redis进程并构建集群"></a>启动Redis进程并构建集群</h3><p>将redis-server和redis.conf这两个文件分发到所有的机器上之后，在所有的机器上启动Redis进程</p><pre><code>./redis-server redis.conf
+</code></pre><p>6台机器上面的redis-server进程都启动好了之后，复制刚刚我们编译好的redis-cli程序到任意一台器上，连接所有的redis-server创建Redis集群并设置副本为1</p><pre><code>~ ./redis-cli --cluster create 172.19.65.196:6379 172.19.72.108:6379 \
+172.19.72.112:6379 172.19.72.203:6379 172.19.65.228:6379 \
+172.19.65.136:6379 --cluster-replicas 1
+
+&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Master[0] -&gt; Slots 0 - 5460
+Master[1] -&gt; Slots 5461 - 10922
+Master[2] -&gt; Slots 10923 - 16383
+Adding replica 172.19.65.228:6379 to 172.19.65.196:6379
+Adding replica 172.19.65.136:6379 to 172.19.72.108:6379
+Adding replica 172.19.72.203:6379 to 172.19.72.112:6379
+M: 8e172b28314aad39c31ace1229f7d1ae4cdb4973 172.19.65.196:6379
+slots:[0-5460] (5461 slots) master
+M: 5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 172.19.72.108:6379
+slots:[5461-10922] (5462 slots) master
+M: 2335076efd1d6f38eac1228d5b326380d92056f4 172.19.72.112:6379
+slots:[10923-16383] (5461 slots) master
+S: 31e83cc017e9d15190b349e11c4762a0d33a3162 172.19.72.203:6379
+replicates 2335076efd1d6f38eac1228d5b326380d92056f4
+S: 0146973e61ffe3d9f63da5dfb9e565e02b1774b6 172.19.65.228:6379
+replicates 8e172b28314aad39c31ace1229f7d1ae4cdb4973
+S: f76fff860057dfab9d4df63b7ee183bb0a23e7df 172.19.65.136:6379
+replicates 5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03
+Can I set the above configuration? (type &#39;yes&#39; to accept):
+</code></pre><p>如上显示了将要创建的集群的状态信息。redis会提示你是否使用如上的配置，输入yes并回车</p><pre><code>&gt;&gt;&gt; Nodes configuration updated
+&gt;&gt;&gt; Assign a different config epoch to each node
+&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+</code></pre><p><span></span></p><pre><code>&gt;&gt;&gt; Performing Cluster Check (using node 172.19.65.196:6379)
+M: 8e172b28314aad39c31ace1229f7d1ae4cdb4973 172.19.65.196:6379
+slots:[0-5460] (5461 slots) master
+1 additional replica(s)
+S: f76fff860057dfab9d4df63b7ee183bb0a23e7df 172.19.65.136:6379
+slots: (0 slots) slave
+replicates 5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03
+M: 5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 172.19.72.108:6379
+slots:[5461-10922] (5462 slots) master
+1 additional replica(s)
+M: 2335076efd1d6f38eac1228d5b326380d92056f4 172.19.72.112:6379
+slots:[10923-16383] (5461 slots) master
+1 additional replica(s)
+S: 31e83cc017e9d15190b349e11c4762a0d33a3162 172.19.72.203:6379
+slots: (0 slots) slave
+replicates 2335076efd1d6f38eac1228d5b326380d92056f4
+S: 0146973e61ffe3d9f63da5dfb9e565e02b1774b6 172.19.65.228:6379
+slots: (0 slots) slave
+replicates 8e172b28314aad39c31ace1229f7d1ae4cdb4973
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+</code></pre><p>执行完命令之后，集群就已经创建了。根据如上显示的信息，此时6个节点的角色如下</p><table><thead><tr><th align="left">节点</th><th align="left">功能</th></tr></thead><tbody><tr><td align="left">172.19.65.196</td><td align="left">master节点，保存slots 0-5460</td></tr><tr><td align="left">172.19.72.108</td><td align="left">master节点，保存slots 5461-10922</td></tr><tr><td align="left">172.19.72.112</td><td align="left">master节点，保存slots 10923-16383</td></tr><tr><td align="left">172.19.72.203</td><td align="left">172.19.72.112:6379的replica</td></tr><tr><td align="left">172.19.65.228</td><td align="left">172.19.65.196:6379的replica</td></tr><tr><td align="left">172.19.65.136</td><td align="left">172.19.72.108:6379的replica</td></tr></tbody></table><h3 id="集群启动后新生成的文件"><a href="#集群启动后新生成的文件" class="headerlink" title="集群启动后新生成的文件"></a>集群启动后新生成的文件</h3><p>观察用户的根目录中除了redis-server和redis.conf之外，还生成了appendonly.aof、dump.rdb和nodes.conf文件</p><table><thead><tr><th align="left">文件</th><th align="left">作用</th></tr></thead><tbody><tr><td align="left">appendonly.aof</td><td align="left">AOF文件，通过追加的方式记录Redis的每一次写操作到磁盘</td></tr><tr><td align="left">dump.rdb</td><td align="left">RDB快照文件，是将Redis内存中的数据持久化到磁盘中生成的</td></tr><tr><td align="left">nodes.conf</td><td align="left">Redis进程用于保存Redis集群相关的配置信息，<strong>不需要手动修改</strong></td></tr></tbody></table><p>nodes.conf的内容如下，保存了一些和集群配置相关的信息，记录了哪些节点是master，哪些节点是slave并且它所追随的master节点是谁</p><pre><code>f76fff860057dfab9d4df63b7ee183bb0a23e7df 172.19.65.136:6379@16379 slave 5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 0 1650355208025 2 connected
+5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 172.19.72.108:6379@16379 master - 0 1650355209991 2 connected 5461-10922
+2335076efd1d6f38eac1228d5b326380d92056f4 172.19.72.112:6379@16379 master - 0 1650355210995 3 connected 10923-16383
+31e83cc017e9d15190b349e11c4762a0d33a3162 172.19.72.203:6379@16379 slave 2335076efd1d6f38eac1228d5b326380d92056f4 0 1650355213006 3 connected
+0146973e61ffe3d9f63da5dfb9e565e02b1774b6 172.19.65.228:6379@16379 slave 8e172b28314aad39c31ace1229f7d1ae4cdb4973 0 1650355212000 1 connected
+8e172b28314aad39c31ace1229f7d1ae4cdb4973 172.19.65.196:6379@16379 myself,master - 0 0 1 connected 0-5460
+vars currentEpoch 6 lastVoteEpoch 0
+</code></pre><h3 id="触发failover"><a href="#触发failover" class="headerlink" title="触发failover"></a>触发failover</h3><p>我们可以通过客户端连接redis-server执行命令，<code>-c</code>表示连接的是一个集群。执行命令<code>cluster nodes</code>查看当前集群的节点信息，这里显示了master节点和slave节点</p><pre><code>~ ./redis-cli -c -h 172.19.65.196 -p 6379
+&gt; cluster nodes
+f76fff860057dfab9d4df63b7ee183bb0a23e7df 172.19.65.136:6379@16379 slave 5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 0 1650356492455 2 connected
+5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 172.19.72.108:6379@16379 master - 0 1650356495473 2 connected 5461-10922
+2335076efd1d6f38eac1228d5b326380d92056f4 172.19.72.112:6379@16379 master - 0 1650356491451 3 connected 10923-16383
+31e83cc017e9d15190b349e11c4762a0d33a3162 172.19.72.203:6379@16379 slave 2335076efd1d6f38eac1228d5b326380d92056f4 0 1650356494468 3 connected
+0146973e61ffe3d9f63da5dfb9e565e02b1774b6 172.19.65.228:6379@16379 slave 8e172b28314aad39c31ace1229f7d1ae4cdb4973 0 1650356493462 1 connected
+8e172b28314aad39c31ace1229f7d1ae4cdb4973 172.19.65.196:6379@16379 myself,master - 0 0 1 connected 0-5460
+</code></pre><p>执行命令<code>./redis-cli -h 172.19.72.112 -p 6379 debug segfault</code>停止112节点的Redis进程，之后再使用<code>cluster nodes</code>查看集群信息</p><pre><code>~ ./redis-cli -h 172.19.65.196 cluster nodes | grep master
+5e2aedd8c0b8ca9cc7839b3779fc34ceabfeda03 172.19.72.108:6379@16379 master - 0 1650356951720 2 connected 5461-10922
+2335076efd1d6f38eac1228d5b326380d92056f4 172.19.72.112:6379@16379 master,fail - 1650356740773 1650356736743 3 disconnected
+31e83cc017e9d15190b349e11c4762a0d33a3162 172.19.72.203:6379@16379 master - 0 1650356954752 7 connected 10923-16383
+8e172b28314aad39c31ace1229f7d1ae4cdb4973 172.19.65.196:6379@16379 myself,master - 0 0 1 connected 0-5460
+</code></pre><p>此时可以看到112已经挂掉了，而203接过112的职责成为了新的master，此时集群已经恢复正常。</p><h3 id="进行数据读写操作"><a href="#进行数据读写操作" class="headerlink" title="进行数据读写操作"></a>进行数据读写操作</h3><p>为了方便使用，我们可以在redis.conf中添加配置<code>daemonize yes</code>使得Redis以守护进程的方式运行。我们可以使用依次停止节点修改配置再启动节点的方式，不停止整个集群修改配置。</p><p>使用命令<code>./redis-cli -c -h 172.19.65.196 -p 6379</code>进入Redis的交互式命令行</p><pre><code>&gt; set counter 100
+-&gt; Redirected to slot [6680] located at 172.19.65.136:6379
+OK
+&gt; incr counter
+(integer) 101
+&gt; incr counter
+(integer) 102
+&gt; incr counter
+(integer) 103
+&gt; incr counter
+(integer) 104
+&gt; incr counter
+(integer) 105
+&gt; incr counter
+(integer) 106
+&gt; incr counter
+(integer) 107
+&gt; incr counter
+(integer) 108
+&gt; incr counter
+(integer) 109
+&gt; incr counter
+(integer) 110
+&gt; RPUSH mylist 11
+-&gt; Redirected to slot [5282] located at 172.19.65.228:6379
+(integer) 1
+&gt; RPUSH mylist 22
+(integer) 2
+&gt; RPUSH mylist 33
+(integer) 3
+&gt; LRANGE mylist 0 -1
+1) &quot;11&quot;
+2) &quot;22&quot;
+3) &quot;33&quot;
+&gt; hmset user:1000 username antirez birthyear 1977 verified 1
+OK
+&gt; hget user:1000 username
+&quot;antirez&quot;
+&gt; hgetall user:1000
+1) &quot;username&quot;
+2) &quot;antirez&quot;
+3) &quot;birthyear&quot;
+4) &quot;1977&quot;
+5) &quot;verified&quot;
+6) &quot;1&quot;
+&gt; hget user:1000 birthyear
+&quot;1977&quot;
+&gt; SADD myset 1 12 3 3 1 2 33 88 1 2 3
+(integer) 6
+&gt; SMEMBERS myset
+1) &quot;1&quot;
+2) &quot;2&quot;
+3) &quot;3&quot;
+4) &quot;12&quot;
+5) &quot;33&quot;
+6) &quot;88&quot;
+</code></pre><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://redis.io/docs/manual/scaling/">Scaling with Redis Cluster</a><br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000038771812">深入学习Redis之Redis Cluster</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="Redis服务的安装和使用">https://www.nosuchfield.com/2021/04/18/Installation-and-use-of-Redis/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag">分布式系统</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

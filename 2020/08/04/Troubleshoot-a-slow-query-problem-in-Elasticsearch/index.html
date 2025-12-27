@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>一次Elasticsearch慢查询问题的排查 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="ElasticSearch"><meta name="description" content="&lt;p&gt;最近对Elasticsearch（以下简称ES）进行了升级，升级之后把部分数据从之前的ES-1.5集群同步到了现在的ES-7.5集群，之后在新集群中进行数据查询的时候发现会有偶发性的查询非常慢的情况。新集群的大部分查询耗时都在10ms以内，但是偶尔却会出现800ms左右的超高查询耗时，本文记录了该问题的排查过程。&lt;/p&gt;
+&lt;h2 id=&#34;GC的原因？&#34;&gt;&lt;a href=&#34;#GC的原因？&#34; class=&#34;headerlink&#34; title=&#34;GC的原因？&#34;&gt;&lt;/a&gt;GC的原因？&lt;/h2&gt;&lt;p&gt;首先我们怀疑是ES的GC导致了偶发性的慢查询，我们知道JVM的GC会导致Stop The World现象，在GC时节点无法处理任何逻辑导致查询行为被阻塞最终导致超长的查询耗时，而GC这种行为本身也是会&lt;strong&gt;偶发&lt;/strong&gt;的，所以和我们观察到的&lt;strong&gt;偶尔&lt;/strong&gt;出现查询耗时非常高的现象非常吻合。&lt;/p&gt;
+&lt;p&gt;我们观察ES运行的GC日志，并未看到有延迟特别高的GC行为，而且也没有看到任何Old GC的动作，因此这些慢查询应该并不是因为JVM的GC行为导致的。"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">一次Elasticsearch慢查询问题的排查</h1></div><div class="post-meta"><span class="post-time">2020-08-04</span></div><div class="post-content"><p>最近对Elasticsearch（以下简称ES）进行了升级，升级之后把部分数据从之前的ES-1.5集群同步到了现在的ES-7.5集群，之后在新集群中进行数据查询的时候发现会有偶发性的查询非常慢的情况。新集群的大部分查询耗时都在10ms以内，但是偶尔却会出现800ms左右的超高查询耗时，本文记录了该问题的排查过程。</p><h2 id="GC的原因？"><a href="#GC的原因？" class="headerlink" title="GC的原因？"></a>GC的原因？</h2><p>首先我们怀疑是ES的GC导致了偶发性的慢查询，我们知道JVM的GC会导致Stop The World现象，在GC时节点无法处理任何逻辑导致查询行为被阻塞最终导致超长的查询耗时，而GC这种行为本身也是会<strong>偶发</strong>的，所以和我们观察到的<strong>偶尔</strong>出现查询耗时非常高的现象非常吻合。</p><p>我们观察ES运行的GC日志，并未看到有延迟特别高的GC行为，而且也没有看到任何Old GC的动作，因此这些慢查询应该并不是因为JVM的GC行为导致的。</p><p>顺便介绍一下，我们使用的是ES-7.5.2自带的bundled JDK，它的版本为13.0.1</p><pre><code>~ java -version
+openjdk version &quot;13.0.1&quot; 2019-10-15
+OpenJDK Runtime Environment AdoptOpenJDK (build 13.0.1+9)
+OpenJDK 64-Bit Server VM AdoptOpenJDK (build 13.0.1+9, mixed mode, sharing)
+</code></pre><p>在该版本的Java中已经废弃了以前的GC日志打印配置方式，新版本的Java使用了一种新的叫做<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/13/docs/specs/man/java.html#enable-logging-with-the-jvm-unified-logging-framework">JVM Unified Logging Framework</a>的方式来控制GC日志的打印，它通过 <code>-Xlog</code> 这个属性来进行设置。</p><p>我们在当前的ES配置<code>jvm.options</code>中添加GC相关配置如下</p><pre><code>## JDK 8 GC logging
+8:-XX:+PrintGCDetails
+8:-XX:+PrintGCDateStamps
+8:-XX:+PrintTenuringDistribution
+8:-XX:+PrintGCApplicationStoppedTime
+8:-Xloggc:logs/gc.log
+8:-XX:+UseGCLogFileRotation
+8:-XX:NumberOfGCLogFiles=32
+8:-XX:GCLogFileSize=64m
+
+# JDK 9+ GC logging
+9-:-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m
+</code></pre><p>上面我们设置了两种GC日志配置，一种是针对Java8的配置，还有一种是针对大于或者等于Java9的配置，ES会根据JVM的版本选择合适的GC日志配置。</p><p>因为我们使用的是Java13，它的版本号是大于9的，因此ES会自动使用</p><pre><code>-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m
+</code></pre><p>这个Xlog的配置来设置GC LOG的打印方式。Xlog属性使用冒号 ( <code>:</code> ) 把它的内容分割为了四个部分：</p><ol><li>JVM中哪些tag的日志需要被打印，多个tag之间用逗号 ( <code>,</code> ) 分割</li><li>日志打印的目标位置，可以是标准输出或文件等等</li><li>打印日志时同时一起打印的附加属性，例如时间、进程号、tag名称等等，属性之间用逗号 ( <code>,</code> ) 分割</li><li>一些打印日志时会用到的其它属性</li></ol><p>我们再了解一下上面ES使用的-Xlog属性的各个部分的具体含义，这些属性被分为了四大类</p><table><thead><tr><th>属性</th><th>含义</th></tr></thead><tbody><tr><td></td><td><strong>（tags）</strong></td></tr><tr><td>gc*</td><td>打印JVM中tag以gc开头的日志，级别为默认值info</td></tr><tr><td>gc+age&#x3D;trace</td><td>打印JVM中tag为gc+age的日志，级别为trace</td></tr><tr><td>safepoint</td><td>打印JVM的safepoint日志，级别为默认值info</td></tr><tr><td></td><td><strong>（日志打印位置）</strong></td></tr><tr><td>file&#x3D;logs&#x2F;gc.log</td><td>GC日志所保存的文件名</td></tr><tr><td></td><td><strong>（需要被打印的其它一些属性）</strong></td></tr><tr><td>utctime</td><td>打印GC的时间点</td></tr><tr><td>pid</td><td>JVM的进程号</td></tr><tr><td>tags</td><td>打印对应的tags信息</td></tr><tr><td></td><td><strong>（控制日志打印的一些其它属性）</strong></td></tr><tr><td>filecount&#x3D;32,filesize&#x3D;64m</td><td>当日志文件达到64m是进行切割，保存32个切割文件</td></tr></tbody></table><p>上面的Xlog可以得到日志如下，包含了gc*、gc+age和safepoint等tag的一些日志</p><pre><code>[2020-08-01T09:54:10.551+0000][1836][gc,heap] Heap region size: 4M
+[2020-08-01T09:54:14.339+0000][1836][gc     ] Using G1
+[2020-08-01T09:54:14.339+0000][1836][gc,heap,coops] Heap address: 0x0000000600000000, size: 8192 MB, Compressed Oops mode: Zero based, Oop shift amount: 3
+[2020-08-01T09:54:14.339+0000][1836][gc,cds       ] Mark closed archive regions in map: [0x00000007ffc00000, 0x00000007ffc77ff8]
+[2020-08-01T09:54:14.339+0000][1836][gc,cds       ] Mark open archive regions in map: [0x00000007ffb00000, 0x00000007ffb47ff8]
+[2020-08-01T09:54:14.355+0000][1836][gc           ] Periodic GC disabled
+[2020-08-01T09:54:14.376+0000][1836][safepoint    ] Safepoint &quot;EnableBiasedLocking&quot;, Time since last: 26126542 ns, Reaching safepoint: 711439 ns, At safepoint: 88387 ns, Total: 799826 ns
+[2020-08-01T09:54:14.381+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 4864660 ns, Reaching safepoint: 286521 ns, At safepoint: 99576 ns, Total: 386097 ns
+...省略部分日志...
+[2020-08-01T09:54:17.374+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 743562 ns, Reaching safepoint: 193154 ns, At safepoint: 51118 ns, Total: 244272 ns
+[2020-08-01T09:54:17.374+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 198778 ns, Reaching safepoint: 375962 ns, At safepoint: 58373 ns, Total: 434335 ns
+[2020-08-01T09:54:17.410+0000][1836][gc,start     ] GC(0) Pause Young (Normal) (G1 Evacuation Pause)
+[2020-08-01T09:54:17.412+0000][1836][gc,task      ] GC(0) Using 13 workers of 13 for evacuation
+[2020-08-01T09:54:17.413+0000][1836][gc,age       ] GC(0) Desired survivor size 27262976 bytes, new threshold 15 (max threshold 15)
+[2020-08-01T09:54:17.452+0000][1836][gc,age       ] GC(0) Age table with threshold 15 (max threshold 15)
+[2020-08-01T09:54:17.452+0000][1836][gc,age       ] GC(0) - age   1:   13104680 bytes,   13104680 total
+[2020-08-01T09:54:17.452+0000][1836][gc,phases    ] GC(0)   Pre Evacuate Collection Set: 1.8ms
+[2020-08-01T09:54:17.452+0000][1836][gc,phases    ] GC(0)   Evacuate Collection Set: 25.5ms
+[2020-08-01T09:54:17.452+0000][1836][gc,phases    ] GC(0)   Post Evacuate Collection Set: 2.3ms
+[2020-08-01T09:54:17.452+0000][1836][gc,phases    ] GC(0)   Other: 12.1ms
+[2020-08-01T09:54:17.452+0000][1836][gc,heap      ] GC(0) Eden regions: 102-&gt;0(98)
+[2020-08-01T09:54:17.452+0000][1836][gc,heap      ] GC(0) Survivor regions: 0-&gt;4(13)
+[2020-08-01T09:54:17.452+0000][1836][gc,heap      ] GC(0) Old regions: 0-&gt;0
+[2020-08-01T09:54:17.452+0000][1836][gc,heap      ] GC(0) Archive regions: 2-&gt;2
+[2020-08-01T09:54:17.452+0000][1836][gc,heap      ] GC(0) Humongous regions: 0-&gt;0
+[2020-08-01T09:54:17.452+0000][1836][gc,metaspace ] GC(0) Metaspace: 20335K-&gt;20335K(1067008K)
+[2020-08-01T09:54:17.452+0000][1836][gc           ] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 411M-&gt;16M(8192M) 41.802ms
+[2020-08-01T09:54:17.452+0000][1836][gc,cpu       ] GC(0) User=0.17s Sys=0.14s Real=0.04s
+[2020-08-01T09:54:17.452+0000][1836][safepoint    ] Safepoint &quot;G1CollectForAllocation&quot;, Time since last: 35223271 ns, Reaching safepoint: 235074 ns, At safepoint: 42013632 ns, Total: 42248706 ns
+[2020-08-01T09:54:17.452+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 274881 ns, Reaching safepoint: 134481 ns, At safepoint: 40119 ns, Total: 174600 ns
+[2020-08-01T09:54:17.452+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 43491 ns, Reaching safepoint: 140798 ns, At safepoint: 26232 ns, Total: 167030 ns
+[2020-08-01T09:54:17.453+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 64481 ns, Reaching safepoint: 129088 ns, At safepoint: 25018 ns, Total: 154106 ns
+[2020-08-01T09:54:17.453+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 35003 ns, Reaching safepoint: 129551 ns, At safepoint: 28893 ns, Total: 158444 ns
+[2020-08-01T09:54:17.453+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 111722 ns, Reaching safepoint: 113937 ns, At safepoint: 37371 ns, Total: 151308 ns
+[2020-08-01T09:54:17.453+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 36233 ns, Reaching safepoint: 128605 ns, At safepoint: 30396 ns, Total: 159001 ns
+[2020-08-01T09:54:17.454+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 44610 ns, Reaching safepoint: 129399 ns, At safepoint: 28918 ns, Total: 158317 ns
+[2020-08-01T09:54:17.456+0000][1836][gc,start     ] GC(1) Pause Young (Concurrent Start) (Metadata GC Threshold)
+[2020-08-01T09:54:17.456+0000][1836][gc,task      ] GC(1) Using 13 workers of 13 for evacuation
+[2020-08-01T09:54:17.456+0000][1836][gc,age       ] GC(1) Desired survivor size 27262976 bytes, new threshold 15 (max threshold 15)
+[2020-08-01T09:54:17.473+0000][1836][gc,age       ] GC(1) Age table with threshold 15 (max threshold 15)
+[2020-08-01T09:54:17.473+0000][1836][gc,age       ] GC(1) - age   1:      29256 bytes,      29256 total
+[2020-08-01T09:54:17.473+0000][1836][gc,age       ] GC(1) - age   2:   13077648 bytes,   13106904 total
+[2020-08-01T09:54:17.473+0000][1836][gc,phases    ] GC(1)   Pre Evacuate Collection Set: 0.4ms
+[2020-08-01T09:54:17.473+0000][1836][gc,phases    ] GC(1)   Evacuate Collection Set: 15.3ms
+[2020-08-01T09:54:17.473+0000][1836][gc,phases    ] GC(1)   Post Evacuate Collection Set: 0.9ms
+[2020-08-01T09:54:17.473+0000][1836][gc,phases    ] GC(1)   Other: 0.6ms
+[2020-08-01T09:54:17.473+0000][1836][gc,heap      ] GC(1) Eden regions: 1-&gt;0(98)
+[2020-08-01T09:54:17.473+0000][1836][gc,heap      ] GC(1) Survivor regions: 4-&gt;4(13)
+[2020-08-01T09:54:17.473+0000][1836][gc,heap      ] GC(1) Old regions: 0-&gt;0
+[2020-08-01T09:54:17.473+0000][1836][gc,heap      ] GC(1) Archive regions: 2-&gt;2
+[2020-08-01T09:54:17.473+0000][1836][gc,heap      ] GC(1) Humongous regions: 0-&gt;0
+[2020-08-01T09:54:17.473+0000][1836][gc,metaspace ] GC(1) Metaspace: 20366K-&gt;20366K(1069056K)
+[2020-08-01T09:54:17.473+0000][1836][gc           ] GC(1) Pause Young (Concurrent Start) (Metadata GC Threshold) 20M-&gt;16M(8192M) 17.263ms
+[2020-08-01T09:54:17.473+0000][1836][gc,cpu       ] GC(1) User=0.06s Sys=0.03s Real=0.02s
+[2020-08-01T09:54:17.473+0000][1836][gc           ] GC(2) Concurrent Cycle
+[2020-08-01T09:54:17.473+0000][1836][gc,marking   ] GC(2) Concurrent Clear Claimed Marks
+[2020-08-01T09:54:17.473+0000][1836][gc,marking   ] GC(2) Concurrent Clear Claimed Marks 0.039ms
+[2020-08-01T09:54:17.473+0000][1836][gc,marking   ] GC(2) Concurrent Scan Root Regions
+[2020-08-01T09:54:17.473+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 93450 ns, Reaching safepoint: 129146 ns, At safepoint: 17510480 ns, Total: 17639626 ns
+[2020-08-01T09:54:17.474+0000][1836][safepoint    ] Safepoint &quot;RevokeBias&quot;, Time since last: 59519 ns, Reaching safepoint: 157428 ns, At safepoint: 40661 ns, Total: 198089 ns
+</code></pre><p>关于Xlog的更加详细的信息可以查看**<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/13/docs/specs/man/java.html#enable-logging-with-the-jvm-unified-logging-framework">参考文档</a>**。有的时候我们只想看到GC的日志而不在意其它的日志信息，此时可以只设置gc日志的tag而移除其它日志的tag，同时我们停止打印tags信息并且将打印时间修改为ISO-8601格式。那么根据参考文档，具体设置如下</p><pre><code>-Xlog:gc:file=logs/gc.log:t,pid:filecount=32,filesize=64m
+</code></pre><p>改完之后得到的日志如下</p><pre><code>[2020-08-07T14:41:42.809+0800][25593] Using G1
+[2020-08-07T14:41:42.827+0800][25593] Periodic GC disabled
+[2020-08-07T14:41:54.322+0800][25593] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 411M-&gt;16M(8192M) 32.843ms
+[2020-08-07T14:41:54.339+0800][25593] GC(1) Pause Young (Concurrent Start) (Metadata GC Threshold) 20M-&gt;16M(8192M) 12.395ms
+[2020-08-07T14:41:54.339+0800][25593] GC(2) Concurrent Cycle
+[2020-08-07T14:41:54.357+0800][25593] GC(2) Pause Remark 24M-&gt;24M(8192M) 2.347ms
+[2020-08-07T14:41:54.359+0800][25593] GC(2) Pause Cleanup 24M-&gt;24M(8192M) 0.409ms
+[2020-08-07T14:41:54.393+0800][25593] GC(2) Concurrent Cycle 53.919ms
+[2020-08-07T14:41:54.889+0800][25593] GC(3) Pause Young (Normal) (G1 Evacuation Pause) 408M-&gt;19M(8192M) 16.746ms
+[2020-08-07T14:41:55.335+0800][25593] GC(4) Pause Young (Normal) (G1 Evacuation Pause) 411M-&gt;22M(8192M) 13.978ms
+[2020-08-07T14:41:56.946+0800][25593] GC(5) Pause Young (Normal) (G1 Evacuation Pause) 426M-&gt;42M(8192M) 38.684ms
+[2020-08-07T14:41:57.545+0800][25593] GC(6) Pause Young (Concurrent Start) (Metadata GC Threshold) 104M-&gt;50M(8192M) 106.594ms
+[2020-08-07T14:41:57.545+0800][25593] GC(7) Concurrent Cycle
+[2020-08-07T14:41:57.566+0800][25593] GC(7) Pause Remark 52M-&gt;52M(8192M) 3.391ms
+[2020-08-07T14:41:57.571+0800][25593] GC(7) Pause Cleanup 52M-&gt;52M(8192M) 0.689ms
+[2020-08-07T14:41:57.599+0800][25593] GC(7) Concurrent Cycle 54.224ms
+[2020-08-07T14:42:00.515+0800][25593] GC(8) Pause Young (Concurrent Start) (Metadata GC Threshold) 364M-&gt;59M(8192M) 135.170ms
+[2020-08-07T14:42:00.515+0800][25593] GC(9) Concurrent Cycle
+[2020-08-07T14:42:00.544+0800][25593] GC(9) Pause Remark 63M-&gt;63M(8192M) 3.422ms
+[2020-08-07T14:42:00.560+0800][25593] GC(9) Pause Cleanup 65M-&gt;65M(8192M) 0.432ms
+[2020-08-07T14:42:00.591+0800][25593] GC(9) Concurrent Cycle 75.614ms
+[2020-08-07T14:42:01.937+0800][25593] GC(10) Pause Young (Normal) (G1 Evacuation Pause) 447M-&gt;84M(8192M) 33.470ms
+[2020-08-07T14:42:02.786+0800][25593] GC(11) Pause Young (Normal) (G1 Evacuation Pause) 448M-&gt;117M(8192M) 42.285ms
+[2020-08-07T14:42:09.939+0800][25593] GC(12) Pause Young (Normal) (G1 Evacuation Pause) 1088M-&gt;730M(8192M) 60.019ms
+[2020-08-07T14:42:19.286+0800][25593] GC(13) Pause Young (Normal) (G1 Evacuation Pause) 1854M-&gt;769M(8192M) 51.429ms
+[2020-08-07T14:43:19.996+0800][25593] GC(14) Pause Young (Normal) (G1 Evacuation Pause) 4924M-&gt;770M(8192M) 43.029ms
+[2020-08-07T14:44:50.846+0800][25593] GC(15) Pause Young (Normal) (G1 Evacuation Pause) 6717M-&gt;771M(8192M) 50.404ms
+[2020-08-07T14:46:32.710+0800][25593] GC(16) Pause Young (Normal) (G1 Evacuation Pause) 7767M-&gt;774M(8192M) 41.461ms
+[2020-08-07T14:47:38.164+0800][25593] GC(17) Pause Young (Normal) (G1 Evacuation Pause) 5766M-&gt;855M(8192M) 48.741ms
+[2020-08-07T14:47:53.993+0800][25593] GC(18) Pause Young (Normal) (G1 Evacuation Pause) 5667M-&gt;809M(8192M) 40.445ms
+</code></pre><p>和我们之前看到的详细日志相比，现在的日志已经显得清晰多了。对于线上ES的JVM而言，这些日志一般已经足够我们在出现问题时进行相应的排查了。当然，如果你需要了解JVM的详细工作情况，那么也可以将尽可能多tag的日志都打印出来以方便进行分析，具体需要哪些日志还是根据实际情况进行考虑。</p><p><em>最后再放一些其它的关于JVM GC LOG打印的参考文档</em></p><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/q/54144713/4614538">https://stackoverflow.com/q/54144713/4614538</a><br><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.8/gc-logging.html">GC logging - Elasticsearch</a><br><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.8/jvm-options.html">Setting JVM options - Elasticsearch</a><br><a target="_blank" rel="noopener" href="https://openjdk.java.net/jeps/158">JEP 158: Unified JVM Logging</a></p><h2 id="ES本身的Cache？"><a href="#ES本身的Cache？" class="headerlink" title="ES本身的Cache？"></a>ES本身的Cache？</h2><p>排除了GC的问题之后，我们又考虑到可能是ES本身的缓存失效导致的慢查询。验证方式非常简单，针对指定的索引我们调用ES清除缓存的接口清掉其缓存</p><pre><code>POST /index-name/_cache/clear
+</code></pre><p>清除掉缓存之后我们立即进行一次查询，发现该次查询耗时80ms左右。虽然清除缓存在一定程度上降低了查询速度，但是也并没有降低到800ms那么慢，可见ES缓存失效也不是偶发性慢查询的真正原因。因为如果是ES缓存失效导致的慢查询，那么在清除掉ES缓存之后查询速度也应该降低到800ms才对。</p><h2 id="Page-cache"><a href="#Page-cache" class="headerlink" title="Page cache"></a>Page cache</h2><p>我们知道在Linux操作系统中，内核是按页来管理内存的。如果想要访问磁盘上的一段数据，操作系统会分配一页（一般是4K）物理内存，之后把这些数据读取到这一页内存中以进行后续的操作。读取流程如下<sup><a target="_blank" rel="noopener" href="https://juejin.im/post/6844903918640578574">参考</a></sup></p><ol><li>进程调用库函数read发起读取文件请求</li><li>内核检查已打开的文件列表，调用文件系统提供的read接口</li><li>找到文件对应的inode，然后计算出要读取的具体的页</li><li>通过inode查找对应的页缓存<ol><li>如果页缓存节点命中，则直接返回文件内容</li><li>如果没有对应的页缓存，则会产生一个缺页异常（page fault）</li><li>操作系统创建新的空的页缓存并从磁盘中读取文件内容，更新页缓存，然后重复第4步</li></ol></li><li>读取文件返回</li></ol><p>页缓存，也叫做文件缓存或磁盘缓存，它对于ES的核心部件Lucene十分重要。Lucene的读写文件十分依赖操作系统的页缓存来提高访问速度，以至于ES在官方文档中都提到ES的JVM进程只应该占用操作系统的一半物理内存，而把剩下的一半物理内存留给Lucene用作读写文件的页缓存。空闲内存越多，操作系统可用于Page Cache的内存也就越多，Lucene也就可以缓存越多的数据在内存中，这样就可以大大的提高Lucene的读写速度。当物理内存不足时，操作系统也会让部分缓存失效以空出内存空间。</p><p>需要注意的是，Page Cache是完全由操作系统控制的，程序无法干预。在程序读写文件时操作系统会自动的创建Page Cache来提高访问速度，但是在程序看来它只是进行了一次文件读写操作，而并不知道在读写操作背后操作系统具体是如何完成这次读写的、以及操作系统是否使用了缓存。</p><p>背景知识介绍到此。我们怀疑ES的偶发性慢查询是否是因为Page Cache的失效导致数据查询无法通过缓存获得，因此从磁盘上获取数据导致了比平时更长的查询时间呢？通过对慢查询发生时机器状态的监控我们发现，在发生慢查询时对应查询较慢的分片所在的机器节点CPU负载很低、内存空闲资源充足，并不存在内存资源不足的情况。因此应该并不是内存资源不足导致Page Cache失效而引发的慢查询。</p><h2 id="index-search-idle-after"><a href="#index-search-idle-after" class="headerlink" title="index.search.idle.after"></a>index.search.idle.after</h2><p>以上两个因素都不是偶发慢查询的真正原因，我们继续在Google上搜索相关的问题，最后我们发现了<a target="_blank" rel="noopener" href="https://discuss.elastic.co/t/slow-first-request-on-an-index-after-a-short-amount-of-time/219292/4">这个帖子</a>。帖子里面提到了一个叫做 <code>index.search.idle.after</code> 的属性，它是在ES-7.0中<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html#_skipped_background_refresh_on_search_idle_shards">新增的一个配置属性</a>。</p><p>按照<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.5/index-modules.html#dynamic-index-settings">官方文档</a>的说法，只要一个分片在 <code>index.search.idle.after</code> 时间段（默认30s）没有能够收到任何请求，就会进入search idle状态。</p><p>但是！！！按照官方文档的说法是即使进入了search idle状态，只要 <code>index.refresh_interval</code> 设置了刷新间隔，分片依旧会刷新，**这部分好像<a target="_blank" rel="noopener" href="https://discuss.elastic.co/t/elasticsearch-7-2-slow-query-after-update/189784/10">与事实不符</a>**。</p><p><strong>事实上，一旦分片进入了search idle状态，该分片就会停止refresh以节省资源（即使设置了<code>index.refresh_interval</code>）。</strong>等到后面再有search请求在该分片发生时，分片首先需要进行一次refresh，refresh完成之后才会执行真正的search。所以一旦分片进入search idle之后再次查询时就会比平时消耗更多的时间。</p><p>至此我们偶发性的慢查询问题就找到原因了。因为我们新的集群刚刚搭建不久，还处于测试阶段，所以我们只切了很少的一部分查询流量到新的集群，那么每个分片在两次查询之间的间隔就有可能会大于30s。而一个分片一旦30s都没有任何查询就会进入search idle状态，那么下一次的查询自然就会比普通的查询慢很多。</p><p>知道了原因之后我们就开始着手解决这个问题，目前有两个解决方案。</p><h4 id="1-修改index-search-idle-after的值"><a href="#1-修改index-search-idle-after的值" class="headerlink" title="1. 修改index.search.idle.after的值"></a>1. 修改index.search.idle.after的值</h4><p>我们可以把 <code>index.search.idle.after</code> 值改大一些，避免分片频繁的进入search idle，例如我们可以把其从默认值30秒修改为5分钟</p><pre><code>PUT /index-name/_settings
+&#123;
+    &quot;index.search.idle.after&quot;: &quot;5m&quot;
+&#125;
+</code></pre><p>修改完之后我们可以看下修改是否生效</p><pre><code>GET /index-name/_settings
+</code></pre><p>得到结果如下，可见该值已经被修改5m了</p><pre><code>&#123;
+    &quot;index-name&quot;: &#123;
+        &quot;settings&quot;: &#123;
+            &quot;index&quot;: &#123;
+                &quot;search&quot;: &#123;
+                    &quot;idle&quot;: &#123;
+                        &quot;after&quot;: &quot;5m&quot;
+                    &#125;
+                &#125;,
+                &quot;number_of_shards&quot;: &quot;2&quot;,
+                ...省略部分内容...
+            &#125;
+        &#125;
+    &#125;
+&#125;
+</code></pre><p>当然我们也可以恢复该值的默认设置</p><pre><code>PUT /index-name/_settings
+&#123;
+    &quot;index.search.idle.after&quot;: null
+&#125;
+</code></pre><h4 id="2-增加请求频率"><a href="#2-增加请求频率" class="headerlink" title="2. 增加请求频率"></a>2. 增加请求频率</h4><p>上面我们介绍了第一个解决方案是增加进入idle的时间，还有一个办法是我们把更多的查询流量切到新的集群中去，这样因为查询之间的间隔变低，也就不会进入idle状态了。</p><p>考虑到我们已经测试了一段时间的新集群了，所以我们选择第二种方案把所有的查询流量都切到新集群中，查询频率增加后也没有再出现偶尔查询很慢的情况了。</p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="一次Elasticsearch慢查询问题的排查">https://www.nosuchfield.com/2020/08/04/Troubleshoot-a-slow-query-problem-in-Elasticsearch/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ElasticSearch/" rel="tag">ElasticSearch</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

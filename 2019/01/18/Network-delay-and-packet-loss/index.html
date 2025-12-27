@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>网络延迟与丢包 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="网络,计算机网络,网络编程,TCP"><meta name="description" content="&lt;style&gt;.post-content h1 {font-weight: normal;}&lt;/style&gt;
+
+&lt;h3 id=&#34;现象&#34;&gt;&lt;a href=&#34;#现象&#34; class=&#34;headerlink&#34; title=&#34;现象&#34;&gt;&lt;/a&gt;现象&lt;/h3&gt;&lt;p&gt;最近发现电脑的网络会不时地出现非常卡顿的情况，我在电脑连接上光猫的无线网之后直接ping光猫发现延迟特别高，有时还会出现ping超时的情况。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ ping 192.168.1.1
+
+Pinging 192.168.1.1 with 32 bytes of data:
+Reply from 192.168.1.1: bytes=32 time=544ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=191ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=161ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=19ms TTL=64
+
+Ping statistics for 1"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">网络延迟与丢包</h1></div><div class="post-meta"><span class="post-time">2019-01-18</span></div><div class="post-content"><style>.post-content h1{font-weight:400}</style><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>最近发现电脑的网络会不时地出现非常卡顿的情况，我在电脑连接上光猫的无线网之后直接ping光猫发现延迟特别高，有时还会出现ping超时的情况。</p><pre><code>$ ping 192.168.1.1
+
+Pinging 192.168.1.1 with 32 bytes of data:
+Reply from 192.168.1.1: bytes=32 time=544ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=191ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=161ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=19ms TTL=64
+
+Ping statistics for 192.168.1.1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 19ms, Maximum = 544ms, Average = 228ms
+</code></pre><p>我的电脑距离光猫不过5米，并且传输过程也不需要经过其它的设备。按照光的传输速度来计算，即使考虑到设备处理数据所需要的时间，延迟绝对不可能这么高。</p><h3 id="原因和解决方案"><a href="#原因和解决方案" class="headerlink" title="原因和解决方案"></a>原因和解决方案</h3><p>经过V友的指教怀疑是光猫的无线网存在问题。光猫使用的是2.4g的无线网，使用软件检测之后发现当前环境2.4g无线网的干扰十分严重，数据在传输的过程发生了极其严重的丢包现象。根据TCP协议，数据传输过程中的丢包会导致数据包被重传，如果数据包大量的丢失就必然会导致数据被反复重传，整体系统的吞吐量降低，在上层用户看起来就表现为数据传输的延迟很高。</p><p>解决办法如下：</p><ol><li>购买一个支持5g的路由器</li><li>把5g路由器通过网线直接连到光猫的网络接口上</li><li>电脑使用支持5g的网卡通过5g无线网连接到新的路由器</li></ol><p>使用如上方法就可以成功解决无线网丢包的问题了，本质上是因为目前工作在5g信道的设备极少、干扰小，无线网络在传输时更稳定而不会发生频繁丢包的情况。现在再ping路由器发现延迟变得很低了：</p><pre><code>$ ping 192.168.0.1
+
+Pinging 192.168.0.1 with 32 bytes of data:
+Reply from 192.168.0.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.0.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.0.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.0.1: bytes=32 time&lt;1ms TTL=64
+
+Ping statistics for 192.168.0.1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+</code></pre><p>优化前后的拓扑图对比</p><p><img src="/images/20190118/optimize.png"></p><h3 id="类似情况"><a href="#类似情况" class="headerlink" title="类似情况"></a>类似情况</h3><p>同样的现象在守望先锋中也有所体现，守望先锋在游戏界面的左侧有时会出现如下的两个橙色图标</p><p><img src="/images/20190118/icon.png"></p><p>按照<a target="_blank" rel="noopener" href="https://gaming.stackexchange.com/a/265004">网络上面找到的说法</a></p><blockquote><p>The lightning bolt means that the server has not heard from your client for some period of time and is now extrapolating. The squares mean that you’re experiencing packet loss.</p></blockquote><p>也就是说闪电代表延迟，而三个方块代表着丢包，看来暴雪对于网络状态的检测还是比较细致的。</p><p>事实上在守望先锋中你可以通过快捷键 <code>ctrl + shift + r</code> 在左上角显示游戏状态，也可以使用快捷键 <code>ctrl + shift + n</code> 显示网络状态。</p><p><img src="/images/20190118/ow.jpg"></p><h3 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h3><p>一般来说在使用网络时，除了网络游戏、直播、语音通话等等这些对实时性要求较高的场景，大部分情况下网络的延迟并不会对我们产生太大的困扰。因为虽然网络延迟较高，但是网络吞吐量基本上不会受到影响，我打开一个网页也就是慢一点嘛，下载文件的速度也丝毫不受到延迟的影响。</p><p>但是丢包就不一样了，丢包会导致大量的数据丢失，此时就不仅是TCP数据包的重传所导致网络延迟了，更会导致网络吞吐量降低。如果不考虑服务端的限速，丢包可能导致100m的带宽仅剩几十K的下载速度，十分的影响网络使用体验。</p><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.v2ex.com/t/236257">https://www.v2ex.com/t/236257</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="网络延迟与丢包">https://www.nosuchfield.com/2019/01/18/Network-delay-and-packet-loss/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/TCP/" rel="tag">TCP</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>

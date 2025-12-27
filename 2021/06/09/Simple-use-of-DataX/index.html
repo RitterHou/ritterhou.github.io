@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><title>DataX的简单使用 - 侯锐的思考与分享</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="keywords" content="大数据,数据库"><meta name="description" content="&lt;p&gt;&lt;a href=&#34;https://github.com/alibaba/DataX&#34;&gt;DataX&lt;/a&gt;是阿里巴巴开发的用于离线数据同步的工具，它支持在MySQL、Oracle、SqlServer、HDFS、HBase等多个数据库之间进行数据的离线同步。&lt;/p&gt;
+&lt;h2 id=&#34;安装DataX&#34;&gt;&lt;a href=&#34;#安装DataX&#34; class=&#34;headerlink&#34; title=&#34;安装DataX&#34;&gt;&lt;/a&gt;安装DataX&lt;/h2&gt;&lt;p&gt;我们可以直接下载已经打包好的文件&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;当然，我们也可以选择从源码编译安装DataX。&lt;strong&gt;由于上面的包已经比较旧了，推荐从源码进行安装。&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;git clone https://github.com/alibaba/DataX.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;因为我们只需要针对一些指"><link rel="stylesheet" href="/css/style.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="侯锐的思考与分享" type="application/atom+xml"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul></nav></header><article class="post"><div class="post-title"><h1 class="article-title">DataX的简单使用</h1></div><div class="post-meta"><span class="post-time">2021-06-09</span></div><div class="post-content"><p><a target="_blank" rel="noopener" href="https://github.com/alibaba/DataX">DataX</a>是阿里巴巴开发的用于离线数据同步的工具，它支持在MySQL、Oracle、SqlServer、HDFS、HBase等多个数据库之间进行数据的离线同步。</p><h2 id="安装DataX"><a href="#安装DataX" class="headerlink" title="安装DataX"></a>安装DataX</h2><p>我们可以直接下载已经打包好的文件</p><pre><code>wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz
+</code></pre><p>当然，我们也可以选择从源码编译安装DataX。<strong>由于上面的包已经比较旧了，推荐从源码进行安装。</strong></p><pre><code>git clone https://github.com/alibaba/DataX.git
+</code></pre><p>因为我们只需要针对一些指定的数据库，所以可以删除<code>pom.xml</code>文件中我们不需要使用的数据库子模块。我保留的子模块如下</p><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- reader --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>mysqlreader<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>oraclereader<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>txtfilereader<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>streamreader<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>rdbmsreader<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- writer --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>mysqlwriter<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>tdenginewriter<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>txtfilewriter<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>streamwriter<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>rdbmswriter<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">module</span>&gt;</span>elasticsearchwriter<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br></pre></td></tr></table></figure><p>同时，我在使用中遇到了一个MySQL连接的问题，经确认应该是mysql驱动的问题。所以还需要修改<code>pom.xml</code>中的MySQL驱动的版本<code>&lt;mysql.driver.version&gt;5.1.34&lt;/mysql.driver.version&gt;</code>。经过上面两步修改之后就可以执行编译命令了</p><pre><code>mvn -U clean package assembly:assembly -Dmaven.test.skip=true
+</code></pre><p>执行结果如下</p><pre><code>...
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:42 min
+[INFO] Finished at: 2021-06-09T14:32:08+08:00
+[INFO] ------------------------------------------------------------------------
+</code></pre><p>编译生成的包文件位于<code>target/datax.tar.gz</code>。解压工具包</p><pre><code>tar -zxvf datax.tar.gz
+cd datax
+</code></pre><p>至此DataX就安装好了，它的目录如下</p><pre><code>➜  datax tree -L 1
+.
+├── bin
+├── conf
+├── job
+├── lib
+├── plugin
+├── script
+└── tmp
+
+7 directories, 0 files
+</code></pre><h2 id="读取MySQL数据并打印"><a href="#读取MySQL数据并打印" class="headerlink" title="读取MySQL数据并打印"></a>读取MySQL数据并打印</h2><p>接下来我们创建一个从MySQL读取数据并且把数据打印出来的任务，创建文件<code>job/mysql_print.json</code></p><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;job&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;setting&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;speed&quot;</span><span class="punctuation">:</span>      <span class="punctuation">&#123;</span><span class="attr">&quot;channel&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;errorLimit&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;record&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span> <span class="attr">&quot;percentage&quot;</span><span class="punctuation">:</span> <span class="number">0.02</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;reader&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;mysqlreader&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;parameter&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;username&quot;</span><span class="punctuation">:</span> <span class="string">&quot;root&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1234&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;column&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;id&quot;</span><span class="punctuation">,</span> <span class="string">&quot;name&quot;</span><span class="punctuation">,</span> <span class="string">&quot;update_time&quot;</span><span class="punctuation">,</span> <span class="string">&quot;message&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;connection&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;table&quot;</span><span class="punctuation">:</span>   <span class="punctuation">[</span><span class="string">&quot;script_version&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;jdbcUrl&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;jdbc:mysql://172.19.34.19:3306/bugatti&quot;</span><span class="punctuation">]</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;writer&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;streamwriter&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;parameter&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;print&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure><p>创建好任务文件之后就可以执行同步命令了</p><pre><code>➜  datax python bin/datax.py job/mysql_print.json
+
+DataX (DATAX-OPENSOURCE-3.0), From Alibaba !
+Copyright (C) 2010-2017, Alibaba Group. All Rights Reserved.
+...
+14	dev	2021-10-09 14:54:46	f9d428b45e882506ce45fb77dbb8e96611554129
+15	master	2021-10-09 14:55:41	f9d428b45e882506ce45fb77dbb8e96611554129
+20	revert-a8a85b0e	2021-08-03 09:40:09	04b81ff4fbf976328d59d105681b8c05fa4f04b5
+22	默认	2021-06-09 10:48:33	04b81ff4fbf976328d59d105681b8c05fa4f04b5
+...
+2021-06-09 14:39:36.845 [job-0] INFO  JobContainer -
+任务启动时刻                    : 2021-06-09 14:39:25
+任务结束时刻                    : 2021-06-09 14:39:36
+任务总计耗时                    :                 10s
+任务平均流量                    :               22B/s
+记录写入速度                    :              0rec/s
+读出记录总数                    :                   4
+读写失败总数                    :                   0
+</code></pre><p>如上所示，我们已经成功的把MySQL中的4条数据查询并打印出来了。</p><h2 id="从MySQL读取数据并写入Elasticsearch"><a href="#从MySQL读取数据并写入Elasticsearch" class="headerlink" title="从MySQL读取数据并写入Elasticsearch"></a>从MySQL读取数据并写入Elasticsearch</h2><p>我们再创建一个类似于上面的同步任务，只是这一次我们不打印数据而是把数据同步到Elasticsearch中去。创建<code>job/mysql_2_es.json</code>文件</p><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;job&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;setting&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;speed&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;channel&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;errorLimit&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;record&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;percentage&quot;</span><span class="punctuation">:</span> <span class="number">0.02</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;reader&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;mysqlreader&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;parameter&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;username&quot;</span><span class="punctuation">:</span> <span class="string">&quot;root&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1234&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;column&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;id&quot;</span><span class="punctuation">,</span> <span class="string">&quot;name&quot;</span><span class="punctuation">,</span> <span class="string">&quot;update_time&quot;</span><span class="punctuation">,</span> <span class="string">&quot;message&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;connection&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;table&quot;</span><span class="punctuation">:</span>   <span class="punctuation">[</span><span class="string">&quot;script_version&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;jdbcUrl&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;jdbc:mysql://172.19.34.19:3306/bugatti&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;writer&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;elasticsearchwriter&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;parameter&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;endpoint&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://172.19.40.171:9200&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;accessId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;accessKey&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;index&quot;</span><span class="punctuation">:</span> <span class="string">&quot;script-version&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;_doc&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;index&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;number_of_shards&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span> <span class="attr">&quot;number_of_replicas&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;batchSize&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;column&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;id&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;id&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">              <span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;name&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;keyword&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">              <span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;update_time&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;date&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;format&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">              <span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;message&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;keyword&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure><p>执行结果如下</p><pre><code>➜  datax python bin/datax.py job/mysql_2_es.json
+
+DataX (DATAX-OPENSOURCE-3.0), From Alibaba !
+Copyright (C) 2010-2017, Alibaba Group. All Rights Reserved.
+
+
+2021-06-09 14:51:45.622 [main] INFO  VMInfo - VMInfo# operatingSystem class =&gt; sun.management.OperatingSystemImpl
+2021-06-09 14:51:45.632 [main] INFO  Engine - the machine info  =&gt;
+
+    osInfo:	Oracle Corporation 1.8 25.321-b07
+    jvmInfo:	Mac OS X x86_64 10.15.7
+    cpu num:	4
+
+    totalPhysicalMemory:	-0.00G
+    freePhysicalMemory:	-0.00G
+    maxFileDescriptorCount:	-1
+    currentOpenFileDescriptorCount:	-1
+
+    GC Names	[PS MarkSweep, PS Scavenge]
+
+    MEMORY_NAME                    | allocation_size                | init_size
+    PS Eden Space                  | 256.00MB                       | 256.00MB
+    Code Cache                     | 240.00MB                       | 2.44MB
+    Compressed Class Space         | 1,024.00MB                     | 0.00MB
+    PS Survivor Space              | 42.50MB                        | 42.50MB
+    PS Old Gen                     | 683.00MB                       | 683.00MB
+    Metaspace                      | -0.00MB                        | 0.00MB
+
+
+2021-06-09 14:51:45.658 [main] INFO  Engine -
+&#123;
+    &quot;content&quot;:[
+        &#123;
+            &quot;reader&quot;:&#123;
+                &quot;name&quot;:&quot;mysqlreader&quot;,
+                &quot;parameter&quot;:&#123;
+                    &quot;column&quot;:[
+                        &quot;id&quot;,
+                        &quot;name&quot;,
+                        &quot;update_time&quot;,
+                        &quot;message&quot;
+                    ],
+                    &quot;connection&quot;:[
+                        &#123;
+                            &quot;jdbcUrl&quot;:[
+                                &quot;jdbc:mysql://172.19.34.19:3306/bugatti&quot;
+                            ],
+                            &quot;table&quot;:[
+                                &quot;script_version&quot;
+                            ]
+                        &#125;
+                    ],
+                    &quot;password&quot;:&quot;****&quot;,
+                    &quot;username&quot;:&quot;root&quot;
+                &#125;
+            &#125;,
+            &quot;writer&quot;:&#123;
+                &quot;name&quot;:&quot;elasticsearchwriter&quot;,
+                &quot;parameter&quot;:&#123;
+                    &quot;accessId&quot;:&quot;1&quot;,
+                    &quot;accessKey&quot;:&quot;*&quot;,
+                    &quot;batchSize&quot;:2,
+                    &quot;column&quot;:[
+                        &#123;
+                            &quot;name&quot;:&quot;id&quot;,
+                            &quot;type&quot;:&quot;id&quot;
+                        &#125;,
+                        &#123;
+                            &quot;name&quot;:&quot;name&quot;,
+                            &quot;type&quot;:&quot;keyword&quot;
+                        &#125;,
+                        &#123;
+                            &quot;format&quot;:&quot;yyyy-MM-dd HH:mm:ss&quot;,
+                            &quot;name&quot;:&quot;update_time&quot;,
+                            &quot;type&quot;:&quot;date&quot;
+                        &#125;,
+                        &#123;
+                            &quot;name&quot;:&quot;message&quot;,
+                            &quot;type&quot;:&quot;keyword&quot;
+                        &#125;
+                    ],
+                    &quot;endpoint&quot;:&quot;http://172.19.40.171:9200&quot;,
+                    &quot;index&quot;:&quot;script-version&quot;,
+                    &quot;settings&quot;:&#123;
+                        &quot;index&quot;:&#123;
+                            &quot;number_of_replicas&quot;:1,
+                            &quot;number_of_shards&quot;:3
+                        &#125;
+                    &#125;,
+                    &quot;type&quot;:&quot;_doc&quot;
+                &#125;
+            &#125;
+        &#125;
+    ],
+    &quot;setting&quot;:&#123;
+        &quot;errorLimit&quot;:&#123;
+            &quot;percentage&quot;:0.02,
+            &quot;record&quot;:0
+        &#125;,
+        &quot;speed&quot;:&#123;
+            &quot;channel&quot;:3
+        &#125;
+    &#125;
+&#125;
+
+2021-06-09 14:51:45.688 [main] WARN  Engine - prioriy set to 0, because NumberFormatException, the value is: null
+2021-06-09 14:51:45.690 [main] INFO  PerfTrace - PerfTrace traceId=job_-1, isEnable=false, priority=0
+2021-06-09 14:51:45.690 [main] INFO  JobContainer - DataX jobContainer starts job.
+2021-06-09 14:51:45.693 [main] INFO  JobContainer - Set jobId = 0
+2021-06-09 14:51:46.257 [job-0] INFO  OriginalConfPretreatmentUtil - Available jdbcUrl:jdbc:mysql://172.19.34.19:3306/bugatti?yearIsDateType=false&amp;zeroDateTimeBehavior=convertToNull&amp;tinyInt1isBit=false&amp;rewriteBatchedStatements=true.
+2021-06-09 14:51:46.334 [job-0] INFO  OriginalConfPretreatmentUtil - table:[script_version] has columns:[id,name,update_time,message].
+2021-06-09 14:51:46.345 [job-0] INFO  JobContainer - jobContainer starts to do prepare ...
+2021-06-09 14:51:46.347 [job-0] INFO  JobContainer - DataX Reader.Job [mysqlreader] do prepare work .
+2021-06-09 14:51:46.347 [job-0] INFO  JobContainer - DataX Writer.Job [elasticsearchwriter] do prepare work .
+2021-06-09 14:51:47.117 [job-0] INFO  AbstractJestClient - Setting server pool to a list of 1 servers: [http://172.19.40.171:9200]
+2021-06-09 14:51:47.119 [job-0] INFO  JestClientFactory - Using single thread/connection supporting basic connection manager
+2021-06-09 14:51:47.220 [job-0] INFO  JestClientFactory - Using default GSON instance
+2021-06-09 14:51:47.220 [job-0] INFO  JestClientFactory - Node Discovery disabled...
+2021-06-09 14:51:47.220 [job-0] INFO  JestClientFactory - Idle connection reaping disabled...
+2021-06-09 14:51:47.220 [job-0] INFO  JestClientFactory - Authentication cache set for preemptive authentication
+2021-06-09 14:51:47.245 [job-0] INFO  ESWriter$Job - [&#123;&quot;name&quot;:&quot;id&quot;,&quot;type&quot;:&quot;id&quot;&#125;,&#123;&quot;name&quot;:&quot;name&quot;,&quot;type&quot;:&quot;keyword&quot;&#125;,&#123;&quot;format&quot;:&quot;yyyy-MM-dd HH:mm:ss&quot;,&quot;name&quot;:&quot;update_time&quot;,&quot;type&quot;:&quot;date&quot;&#125;,&#123;&quot;name&quot;:&quot;message&quot;,&quot;type&quot;:&quot;keyword&quot;&#125;]
+2021-06-09 14:51:47.255 [job-0] INFO  ESWriter$Job - index:[script-version], type:[_doc], mappings:[&#123;&quot;_doc&quot;:&#123;&quot;properties&quot;:&#123;&quot;message&quot;:&#123;&quot;type&quot;:&quot;keyword&quot;&#125;,&quot;name&quot;:&#123;&quot;type&quot;:&quot;keyword&quot;&#125;,&quot;update_time&quot;:&#123;&quot;type&quot;:&quot;date&quot;&#125;&#125;&#125;&#125;]
+2021-06-09 14:51:47.458 [job-0] INFO  ESClient - create index script-version
+2021-06-09 14:51:47.488 [job-0] INFO  ESClient - index [script-version] already exists
+2021-06-09 14:51:47.489 [job-0] INFO  JobContainer - jobContainer starts to do split ...
+2021-06-09 14:51:47.490 [job-0] INFO  JobContainer - Job set Channel-Number to 3 channels.
+2021-06-09 14:51:47.503 [job-0] INFO  JobContainer - DataX Reader.Job [mysqlreader] splits to [1] tasks.
+2021-06-09 14:51:47.504 [job-0] INFO  JobContainer - DataX Writer.Job [elasticsearchwriter] splits to [1] tasks.
+2021-06-09 14:51:47.527 [job-0] INFO  JobContainer - jobContainer starts to do schedule ...
+2021-06-09 14:51:47.536 [job-0] INFO  JobContainer - Scheduler starts [1] taskGroups.
+2021-06-09 14:51:47.538 [job-0] INFO  JobContainer - Running by standalone Mode.
+2021-06-09 14:51:47.549 [taskGroup-0] INFO  TaskGroupContainer - taskGroupId=[0] start [1] channels for [1] tasks.
+2021-06-09 14:51:47.555 [taskGroup-0] INFO  Channel - Channel set byte_speed_limit to -1, No bps activated.
+2021-06-09 14:51:47.555 [taskGroup-0] INFO  Channel - Channel set record_speed_limit to -1, No tps activated.
+2021-06-09 14:51:47.674 [taskGroup-0] INFO  TaskGroupContainer - taskGroup[0] taskId[0] attemptCount[1] is started
+2021-06-09 14:51:47.687 [0-0-0-writer] INFO  AbstractJestClient - Setting server pool to a list of 1 servers: [http://172.19.40.171:9200]
+2021-06-09 14:51:47.687 [0-0-0-reader] INFO  CommonRdbmsReader$Task - Begin to read record by Sql: [select id,name,update_time,message from script_version
+] jdbcUrl:[jdbc:mysql://172.19.34.19:3306/bugatti?yearIsDateType=false&amp;zeroDateTimeBehavior=convertToNull&amp;tinyInt1isBit=false&amp;rewriteBatchedStatements=true].
+2021-06-09 14:51:47.687 [0-0-0-writer] INFO  JestClientFactory - Using multi thread/connection supporting pooling connection manager
+2021-06-09 14:51:47.709 [0-0-0-writer] INFO  JestClientFactory - Using default GSON instance
+2021-06-09 14:51:47.710 [0-0-0-writer] INFO  JestClientFactory - Node Discovery disabled...
+2021-06-09 14:51:47.710 [0-0-0-writer] INFO  JestClientFactory - Idle connection reaping disabled...
+2021-06-09 14:51:47.711 [0-0-0-writer] INFO  JestClientFactory - Authentication cache set for preemptive authentication
+2021-06-09 14:51:47.775 [0-0-0-reader] INFO  CommonRdbmsReader$Task - Finished read record by Sql: [select id,name,update_time,message from script_version
+] jdbcUrl:[jdbc:mysql://172.19.34.19:3306/bugatti?yearIsDateType=false&amp;zeroDateTimeBehavior=convertToNull&amp;tinyInt1isBit=false&amp;rewriteBatchedStatements=true].
+2021-06-09 14:51:48.369 [0-0-0-writer] INFO  ESWriter$Job - task end, write size :4
+2021-06-09 14:51:48.388 [taskGroup-0] INFO  TaskGroupContainer - taskGroup[0] taskId[0] is successed, used[714]ms
+2021-06-09 14:51:48.388 [taskGroup-0] INFO  TaskGroupContainer - taskGroup[0] completed it&#39;s tasks.
+2021-06-09 14:51:57.722 [job-0] INFO  StandAloneJobContainerCommunicator - Total 4 records, 226 bytes | Speed 22B/s, 0 records/s | Error 0 records, 0 bytes |  All Task WaitWriterTime 0.000s |  All Task WaitReaderTime 0.074s | Percentage 100.00%
+2021-06-09 14:51:57.723 [job-0] INFO  AbstractScheduler - Scheduler accomplished all tasks.
+2021-06-09 14:51:57.724 [job-0] INFO  JobContainer - DataX Writer.Job [elasticsearchwriter] do post work.
+2021-06-09 14:51:57.725 [job-0] INFO  AbstractJestClient - Setting server pool to a list of 1 servers: [http://172.19.40.171:9200]
+2021-06-09 14:51:57.725 [job-0] INFO  JestClientFactory - Using single thread/connection supporting basic connection manager
+2021-06-09 14:51:57.727 [job-0] INFO  JestClientFactory - Using default GSON instance
+2021-06-09 14:51:57.727 [job-0] INFO  JestClientFactory - Node Discovery disabled...
+2021-06-09 14:51:57.727 [job-0] INFO  JestClientFactory - Idle connection reaping disabled...
+2021-06-09 14:51:57.727 [job-0] INFO  JestClientFactory - Authentication cache set for preemptive authentication
+2021-06-09 14:51:57.728 [job-0] INFO  JobContainer - DataX Reader.Job [mysqlreader] do post work.
+2021-06-09 14:51:57.728 [job-0] INFO  JobContainer - DataX jobId [0] completed successfully.
+2021-06-09 14:51:57.729 [job-0] INFO  HookInvoker - No hook invoked, because base dir not exists or is a file: /Users/hourui/Downloads/111111/datax/hook
+2021-06-09 14:51:57.735 [job-0] INFO  JobContainer -
+    [total cpu info] =&gt;
+        averageCpu                     | maxDeltaCpu                    | minDeltaCpu
+        -1.00%                         | -1.00%                         | -1.00%
+
+
+    [total gc info] =&gt;
+        NAME                 | totalGCCount       | maxDeltaGCCount    | minDeltaGCCount    | totalGCTime        | maxDeltaGCTime     | minDeltaGCTime
+        PS MarkSweep         | 1                  | 1                  | 1                  | 0.060s             | 0.060s             | 0.060s
+        PS Scavenge          | 1                  | 1                  | 1                  | 0.031s             | 0.031s             | 0.031s
+
+2021-06-09 14:51:57.735 [job-0] INFO  JobContainer - PerfTrace not enable!
+2021-06-09 14:51:57.736 [job-0] INFO  StandAloneJobContainerCommunicator - Total 4 records, 226 bytes | Speed 22B/s, 0 records/s | Error 0 records, 0 bytes |  All Task WaitWriterTime 0.000s |  All Task WaitReaderTime 0.074s | Percentage 100.00%
+2021-06-09 14:51:57.737 [job-0] INFO  JobContainer -
+任务启动时刻                    : 2021-06-09 14:51:45
+任务结束时刻                    : 2021-06-09 14:51:57
+任务总计耗时                    :                 12s
+任务平均流量                    :               22B/s
+记录写入速度                    :              0rec/s
+读出记录总数                    :                   4
+读写失败总数                    :                   0
+</code></pre><p>上面的脚本执行完毕之后我们就可以在Elasticsearch中查询到相关的数据了</p><pre><code>curl http://172.19.40.171:9200/script-version/_search
+</code></pre><p>查询结果如下</p><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;took&quot;</span><span class="punctuation">:</span><span class="number">3</span><span class="punctuation">,</span><span class="attr">&quot;timed_out&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span><span class="attr">&quot;_shards&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;total&quot;</span><span class="punctuation">:</span><span class="number">2</span><span class="punctuation">,</span><span class="attr">&quot;successful&quot;</span><span class="punctuation">:</span><span class="number">2</span><span class="punctuation">,</span><span class="attr">&quot;skipped&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span><span class="attr">&quot;failed&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;hits&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;total&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;value&quot;</span><span class="punctuation">:</span><span class="number">4</span><span class="punctuation">,</span><span class="attr">&quot;relation&quot;</span><span class="punctuation">:</span><span class="string">&quot;eq&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;max_score&quot;</span><span class="punctuation">:</span><span class="number">1.0</span><span class="punctuation">,</span><span class="attr">&quot;hits&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;_index&quot;</span><span class="punctuation">:</span><span class="string">&quot;script-version&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_type&quot;</span><span class="punctuation">:</span><span class="string">&quot;_doc&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_id&quot;</span><span class="punctuation">:</span><span class="string">&quot;22&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_score&quot;</span><span class="punctuation">:</span><span class="number">1.0</span><span class="punctuation">,</span><span class="attr">&quot;_source&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;update_time&quot;</span><span class="punctuation">:</span><span class="string">&quot;2021-06-09T10:48:33.000+08:00&quot;</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;默认&quot;</span><span class="punctuation">,</span><span class="attr">&quot;message&quot;</span><span class="punctuation">:</span><span class="string">&quot;04b81ff4fbf976328d59d105681b8c05fa4f04b5&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;_index&quot;</span><span class="punctuation">:</span><span class="string">&quot;script-version&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_type&quot;</span><span class="punctuation">:</span><span class="string">&quot;_doc&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_id&quot;</span><span class="punctuation">:</span><span class="string">&quot;14&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_score&quot;</span><span class="punctuation">:</span><span class="number">1.0</span><span class="punctuation">,</span><span class="attr">&quot;_source&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;update_time&quot;</span><span class="punctuation">:</span><span class="string">&quot;2021-10-09T14:54:46.000+08:00&quot;</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;dev&quot;</span><span class="punctuation">,</span><span class="attr">&quot;message&quot;</span><span class="punctuation">:</span><span class="string">&quot;f9d428b45e882506ce45fb77dbb8e96611554129&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;_index&quot;</span><span class="punctuation">:</span><span class="string">&quot;script-version&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_type&quot;</span><span class="punctuation">:</span><span class="string">&quot;_doc&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_id&quot;</span><span class="punctuation">:</span><span class="string">&quot;15&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_score&quot;</span><span class="punctuation">:</span><span class="number">1.0</span><span class="punctuation">,</span><span class="attr">&quot;_source&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;update_time&quot;</span><span class="punctuation">:</span><span class="string">&quot;2021-10-09T14:55:41.000+08:00&quot;</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;master&quot;</span><span class="punctuation">,</span><span class="attr">&quot;message&quot;</span><span class="punctuation">:</span><span class="string">&quot;f9d428b45e882506ce45fb77dbb8e96611554129&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;_index&quot;</span><span class="punctuation">:</span><span class="string">&quot;script-version&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_type&quot;</span><span class="punctuation">:</span><span class="string">&quot;_doc&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_id&quot;</span><span class="punctuation">:</span><span class="string">&quot;20&quot;</span><span class="punctuation">,</span><span class="attr">&quot;_score&quot;</span><span class="punctuation">:</span><span class="number">1.0</span><span class="punctuation">,</span><span class="attr">&quot;_source&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;update_time&quot;</span><span class="punctuation">:</span><span class="string">&quot;2021-08-03T09:40:09.000+08:00&quot;</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;revert-a8a85b0e&quot;</span><span class="punctuation">,</span><span class="attr">&quot;message&quot;</span><span class="punctuation">:</span><span class="string">&quot;04b81ff4fbf976328d59d105681b8c05fa4f04b5&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="DataX的简单使用">https://www.nosuchfield.com/2021/06/09/Simple-use-of-DataX/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script src="/js/code-enhancer.js"></script><script src="/js/pangu.min.js"></script><script>pangu.spacingPage()</script><script>function backToTop(){document.body.scrollTop=0,document.documentElement.scrollTop=0}</script><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/" rel="tag">大数据</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul><span onclick="backToTop()" class="top">返回顶部</span></div></article><footer><span>&copy; 2015 - 2025</span> <span class="author">Raymond</span> <span style="float:right"><span class="upyun">本网站由<a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"> <img src="/images/others/upyun.png"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank">GitHub</a></span></footer></div></body></html>
