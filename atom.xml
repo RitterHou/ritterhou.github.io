@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>侯锐的思考与分享</title>
+  
+  
+  <link href="https://www.nosuchfield.com/atom.xml" rel="self"/>
+  
+  <link href="https://www.nosuchfield.com/"/>
+  <updated>2026-07-15T13:19:34.689Z</updated>
+  <id>https://www.nosuchfield.com/</id>
+  
+  <author>
+    <name>Raymond</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>大数据技术的演进：从 Hive、GFS 到 Raft</title>
+    <link href="https://www.nosuchfield.com/2026/07/15/The-Evolution-of-Big-Data-From-Hive-GFS-to-Raft/"/>
+    <id>https://www.nosuchfield.com/2026/07/15/The-Evolution-of-Big-Data-From-Hive-GFS-to-Raft/</id>
+    <published>2026-07-15T21:30:00.000Z</published>
+    <updated>2026-07-15T13:19:34.689Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;大数据这个领域发展了二十多年，技术名词换了很多轮，但底层的设计模式其实一直比较收敛。本文按发展史的顺序，依次介绍 Hive 的原理、GFS 与 CDN 各自的定位、GFS 与 Elasticsearch 在架构上的相似之处、分布式系统中 master 节点的管理方式、几种主流的共识算法，最后落到 Raft 上，并且介绍一下把 Raft 当作类库嵌入到应用内部这种较新的用法。&lt;/p&gt;
+&lt;h2 id=&quot;大数据发展简史&quot;&gt;&lt;a href=&quot;#大数据发展简史&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="大数据" scheme="https://www.nosuchfield.com/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+    <category term="分布式系统" scheme="https://www.nosuchfield.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/"/>
+    
+    <category term="Elasticsearch" scheme="https://www.nosuchfield.com/tags/Elasticsearch/"/>
+    
+    <category term="raft" scheme="https://www.nosuchfield.com/tags/raft/"/>
+    
+    <category term="GFS" scheme="https://www.nosuchfield.com/tags/GFS/"/>
+    
+    <category term="Hive" scheme="https://www.nosuchfield.com/tags/Hive/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何进行站点网络优化</title>
+    <link href="https://www.nosuchfield.com/2026/04/19/How-to-Optimize-Site-Network-Performance/"/>
+    <id>https://www.nosuchfield.com/2026/04/19/How-to-Optimize-Site-Network-Performance/</id>
+    <published>2026-04-19T12:00:00.000Z</published>
+    <updated>2026-07-15T13:19:34.680Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;站点的网络访问速度受到用户所在地区、网络运营商等多种因素的影响。针对这些差异，我们可以通过选择合适的 CDN 和机房来有针对性地优化特定地区、特定运营商下的访问速度。与此同时，客户端可以对不同域名进行测速，根据测速结果动态选择延迟最低的线路。&lt;/p&gt;
+&lt;p&gt;网络优化大体上可以分为两个方向：&lt;strong&gt;静态资源加速&lt;/strong&gt;和&lt;strong&gt;动态资源加速&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id=&quot;静态资源加速&quot;&gt;&lt;a href=&quot;#静态资源加速&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="网络优化" scheme="https://www.nosuchfield.com/tags/%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96/"/>
+    
+    <category term="CDN" scheme="https://www.nosuchfield.com/tags/CDN/"/>
+    
+    <category term="腾讯云" scheme="https://www.nosuchfield.com/tags/%E8%85%BE%E8%AE%AF%E4%BA%91/"/>
+    
+    <category term="CloudFlare" scheme="https://www.nosuchfield.com/tags/CloudFlare/"/>
+    
+    <category term="性能优化" scheme="https://www.nosuchfield.com/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 Elasticsearch 分析腾讯云 EO 日志</title>
+    <link href="https://www.nosuchfield.com/2025/12/27/Using-Elasticsearch-to-Analyze-Tencent-Cloud-EO-Logs/"/>
+    <id>https://www.nosuchfield.com/2025/12/27/Using-Elasticsearch-to-Analyze-Tencent-Cloud-EO-Logs/</id>
+    <published>2025-12-27T13:14:53.000Z</published>
+    <updated>2026-07-15T13:19:34.691Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;腾讯云 EO 可以查看一些指标信息，但是更加详细的信息需要我们下载离线日志自行分析。&lt;/p&gt;
+&lt;h2 id=&quot;获取日志下载链接&quot;&gt;&lt;a href=&quot;#获取日志下载链接&quot; class=&quot;headerlink&quot; title=&quot;获取日志下载链接&quot;&gt;&lt;/a&gt;获取日志下载链接&lt;/h2&gt;&lt;p&gt;腾讯云会将日志打包为&lt;code&gt;.gz&lt;/code&gt;格式，解压后文件会包含多行，每一行都是一个 JSON 格式的数据，对应一条 EO 的请求日志，日志格式可以参考 &lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="大数据" scheme="https://www.nosuchfield.com/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+    
+    <category term="Elasticsearch" scheme="https://www.nosuchfield.com/tags/Elasticsearch/"/>
+    
+    <category term="Python" scheme="https://www.nosuchfield.com/tags/Python/"/>
+    
+    <category term="腾讯云" scheme="https://www.nosuchfield.com/tags/%E8%85%BE%E8%AE%AF%E4%BA%91/"/>
+    
+    <category term="日志分析" scheme="https://www.nosuchfield.com/tags/%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>XXL-JOB 的部署、搭建与使用</title>
+    <link href="https://www.nosuchfield.com/2025/08/22/XXL-JOB-Deployment-Setup-and-Usage/"/>
+    <id>https://www.nosuchfield.com/2025/08/22/XXL-JOB-Deployment-Setup-and-Usage/</id>
+    <published>2025-08-22T16:57:47.000Z</published>
+    <updated>2026-07-15T13:19:34.692Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;XXL-JOB 是一个分布式任务调度平台，它可以很方便的实现分布式的任务调度。&lt;/p&gt;
+&lt;h2 id=&quot;部署&quot;&gt;&lt;a href=&quot;#部署&quot; class=&quot;headerlink&quot; title=&quot;部署&quot;&gt;&lt;/a&gt;部署&lt;/h2&gt;&lt;p&gt;首先我们下载 XXL-JOB 的源码&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;git clone git@github.com:xuxueli/xxl-job.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;之后我们根据&lt;code&gt;doc/db/tables_xxl_job.sql&lt;/code&gt;中的 sql</summary>
+        
+      
+    
+    
+    
+    
+    <category term="微服务" scheme="https://www.nosuchfield.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+    <category term="Java" scheme="https://www.nosuchfield.com/tags/Java/"/>
+    
+    <category term="XXL-JOB" scheme="https://www.nosuchfield.com/tags/XXL-JOB/"/>
+    
+    <category term="分布式任务调度" scheme="https://www.nosuchfield.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
+    
+    <category term="Spring Boot" scheme="https://www.nosuchfield.com/tags/Spring-Boot/"/>
+    
+    <category term="任务调度" scheme="https://www.nosuchfield.com/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 NGINX 的 auth_request 进行统一 jwt 鉴权</title>
+    <link href="https://www.nosuchfield.com/2025/07/24/Using-NGINX-auth_request-for-unified-JWT-authentication/"/>
+    <id>https://www.nosuchfield.com/2025/07/24/Using-NGINX-auth_request-for-unified-JWT-authentication/</id>
+    <published>2025-07-24T15:22:56.000Z</published>
+    <updated>2026-07-15T13:19:34.691Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;NGINX 的&lt;code&gt;auth_request&lt;/code&gt;模块提供了一种统一的认证机制，可以在 NGINX 层面进行 JWT 鉴权，而不需要在每个后端服务中重复实现认证逻辑。&lt;/p&gt;
+&lt;p&gt;首先我们定义一下 nginx 的配置，它的配置如下&lt;/p&gt;
+&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;figcaption&gt;&lt;span&gt;flat&lt;/span&gt;&lt;/figcaption&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span</summary>
+        
+      
+    
+    
+    
+    
+    <category term="JWT" scheme="https://www.nosuchfield.com/tags/JWT/"/>
+    
+    <category term="微服务" scheme="https://www.nosuchfield.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+    <category term="API网关" scheme="https://www.nosuchfield.com/tags/API%E7%BD%91%E5%85%B3/"/>
+    
+    <category term="认证授权" scheme="https://www.nosuchfield.com/tags/%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83/"/>
+    
+    <category term="Nginx" scheme="https://www.nosuchfield.com/tags/Nginx/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 APISIX 解析 jwt 并获取 payload 信息</title>
+    <link href="https://www.nosuchfield.com/2025/07/11/APISIX-parse-JWT-and-get-payload-information/"/>
+    <id>https://www.nosuchfield.com/2025/07/11/APISIX-parse-JWT-and-get-payload-information/</id>
+    <published>2025-07-11T11:23:07.000Z</published>
+    <updated>2026-07-15T13:19:34.669Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;APISIX 支持获取 jwt 的信息，并且将这个信息进行解码并转发给后端服务。&lt;/p&gt;
+&lt;h3 id=&quot;1-启动服务&quot;&gt;&lt;a href=&quot;#1-启动服务&quot; class=&quot;headerlink&quot; title=&quot;1. 启动服务&quot;&gt;&lt;/a&gt;1. 启动服务&lt;/h3&gt;&lt;p&gt;首先我们根据 &lt;a href=&quot;https://docs.api7.ai/apisix/getting-started&quot;&gt;官方脚本&lt;/a&gt; 来启动 APISIX 服务&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;~ curl -sL</summary>
+        
+      
+    
+    
+    
+    
+    <category term="APISIX" scheme="https://www.nosuchfield.com/tags/APISIX/"/>
+    
+    <category term="JWT" scheme="https://www.nosuchfield.com/tags/JWT/"/>
+    
+    <category term="微服务" scheme="https://www.nosuchfield.com/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+    <category term="API网关" scheme="https://www.nosuchfield.com/tags/API%E7%BD%91%E5%85%B3/"/>
+    
+    <category term="Lua" scheme="https://www.nosuchfield.com/tags/Lua/"/>
+    
+    <category term="认证授权" scheme="https://www.nosuchfield.com/tags/%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《推荐系统实践》</title>
+    <link href="https://www.nosuchfield.com/2025/06/22/Recommender-Systems-in-Practice/"/>
+    <id>https://www.nosuchfield.com/2025/06/22/Recommender-Systems-in-Practice/</id>
+    <published>2025-06-22T10:54:59.000Z</published>
+    <updated>2026-07-15T13:19:34.686Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;从某种意义上说，推荐系统和搜索引擎对于用户来说是两个互补的工具。搜索引擎满足了用户有明确目的时的主动查找需求，而推荐系统能够在用户没有明确目的的时候帮助他们发现感兴趣的新内容。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;基于用户行为分析的推荐算法是个性化推荐系统的重要算法，学术界一般将这种类型的算法称为协同过滤（Collaborative</summary>
+        
+      
+    
+    
+    
+    
+    <category term="算法" scheme="https://www.nosuchfield.com/tags/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="机器学习" scheme="https://www.nosuchfield.com/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="读书笔记" scheme="https://www.nosuchfield.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    <category term="推荐系统" scheme="https://www.nosuchfield.com/tags/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F/"/>
+    
+    <category term="数据挖掘" scheme="https://www.nosuchfield.com/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《上瘾：让用户养成使用习惯的四大产品逻辑》</title>
+    <link href="https://www.nosuchfield.com/2025/06/18/Hooked-How-to-Build-Habit-Forming-Products/"/>
+    <id>https://www.nosuchfield.com/2025/06/18/Hooked-How-to-Build-Habit-Forming-Products/</id>
+    <published>2025-06-18T17:44:52.000Z</published>
+    <updated>2026-07-15T13:19:34.679Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;em&gt;&lt;a href=&quot;https://www.amazon.com/Hooked-How-Build-Habit-Forming-Products/dp/1591847788&quot;&gt;Hooked: How to Build Habit-Forming Products&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;如何卖出更多的产品：产能 -&amp;gt; 营销&amp;#x2F;渠道 -&amp;gt; 产品设计&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;上瘾&lt;/strong&gt;如何设计产品：触发 -&amp;gt; 行动 -&amp;gt; 多变的酬赏 -&amp;gt;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="产品设计" scheme="https://www.nosuchfield.com/tags/%E4%BA%A7%E5%93%81%E8%AE%BE%E8%AE%A1/"/>
+    
+    <category term="用户体验" scheme="https://www.nosuchfield.com/tags/%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C/"/>
+    
+    <category term="心理学" scheme="https://www.nosuchfield.com/tags/%E5%BF%83%E7%90%86%E5%AD%A6/"/>
+    
+    <category term="习惯养成" scheme="https://www.nosuchfield.com/tags/%E4%B9%A0%E6%83%AF%E5%85%BB%E6%88%90/"/>
+    
+    <category term="读书笔记" scheme="https://www.nosuchfield.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Kotlin 与 Java 对照手册</title>
+    <link href="https://www.nosuchfield.com/2025/04/24/Kotlin-vs-Java-Comparison-Guide/"/>
+    <id>https://www.nosuchfield.com/2025/04/24/Kotlin-vs-Java-Comparison-Guide/</id>
+    <published>2025-04-24T14:21:27.000Z</published>
+    <updated>2026-07-15T13:19:34.683Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;1-基本类型&quot;&gt;&lt;a href=&quot;#1-基本类型&quot; class=&quot;headerlink&quot; title=&quot;1. 基本类型&quot;&gt;&lt;/a&gt;1. 基本类型&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;类型&lt;/th&gt;
+&lt;th&gt;Kotlin 写法&lt;/th&gt;
+&lt;th&gt;Java 写法&lt;/th&gt;
+&lt;th&gt;简要说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;数字&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;Int&lt;/code&gt;, &lt;code&gt;Long&lt;/code&gt;, &lt;code&gt;Float&lt;/code&gt;,</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Java" scheme="https://www.nosuchfield.com/tags/Java/"/>
+    
+    <category term="JVM" scheme="https://www.nosuchfield.com/tags/JVM/"/>
+    
+    <category term="Kotlin" scheme="https://www.nosuchfield.com/tags/Kotlin/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ComfyUI 的操作与使用</title>
+    <link href="https://www.nosuchfield.com/2025/03/31/ComfyUI-Operation-and-Usage/"/>
+    <id>https://www.nosuchfield.com/2025/03/31/ComfyUI-Operation-and-Usage/</id>
+    <published>2025-03-31T11:21:10.000Z</published>
+    <updated>2026-07-15T13:19:34.672Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;em&gt;简单起见，又或者是没有 N 卡或者显卡的配置比较低，可以使用 &lt;a href=&quot;https://console.cloud.tencent.com/hai&quot;&gt;腾讯云 HAI&lt;/a&gt; 直接搭建 ComfyUI 服务。&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&quot;入门使用&quot;&gt;&lt;a href=&quot;#入门使用&quot; class=&quot;headerlink&quot; title=&quot;入门使用&quot;&gt;&lt;/a&gt;入门使用&lt;/h3&gt;&lt;p&gt;可以先 clear 掉当前的</summary>
+        
+      
+    
+    
+    
+    
+    <category term="机器学习" scheme="https://www.nosuchfield.com/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="ComfyUI" scheme="https://www.nosuchfield.com/tags/ComfyUI/"/>
+    
+    <category term="AI" scheme="https://www.nosuchfield.com/tags/AI/"/>
+    
+    <category term="图像生成" scheme="https://www.nosuchfield.com/tags/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90/"/>
+    
+    <category term="Stable Diffusion" scheme="https://www.nosuchfield.com/tags/Stable-Diffusion/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ComfyUI 简介</title>
+    <link href="https://www.nosuchfield.com/2025/03/30/ComfyUI-Introduction/"/>
+    <id>https://www.nosuchfield.com/2025/03/30/ComfyUI-Introduction/</id>
+    <published>2025-03-30T22:47:59.000Z</published>
+    <updated>2026-07-15T13:19:34.672Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;strong&gt;ComfyUI&lt;/strong&gt; 是一个基于节点工作流的现代化 Stable Diffusion 图形用户界面。与传统的 WebUI 不同，ComfyUI 采用节点连接的方式来构建图像生成工作流，让用户能够更精确地控制整个生成过程。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stable Diffusion&lt;/strong&gt; 是一款开源的 AI 图像生成技术，基于扩散模型构建。用户可以通过 &lt;strong&gt;Stable Diffusion WebUI&lt;/strong&gt; 或 &lt;strong&gt;ComfyUI&lt;/strong&gt;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="机器学习" scheme="https://www.nosuchfield.com/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="ComfyUI" scheme="https://www.nosuchfield.com/tags/ComfyUI/"/>
+    
+    <category term="AI" scheme="https://www.nosuchfield.com/tags/AI/"/>
+    
+    <category term="图像生成" scheme="https://www.nosuchfield.com/tags/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>利用 whisper 为视频自动生成字幕</title>
+    <link href="https://www.nosuchfield.com/2025/01/02/Automatically-generate-subtitles-for-videos-with-whisper/"/>
+    <id>https://www.nosuchfield.com/2025/01/02/Automatically-generate-subtitles-for-videos-with-whisper/</id>
+    <published>2025-01-02T10:37:24.000Z</published>
+    <updated>2026-07-15T13:19:34.671Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://github.com/openai/whisper&quot;&gt;whisper&lt;/a&gt; 是一个由 openai 开发的通用语言识别模型，我们可以使用它来为视频自动创建字幕。&lt;/p&gt;
+&lt;h2 id=&quot;环境安装&quot;&gt;&lt;a href=&quot;#环境安装&quot; class=&quot;headerlink&quot; title=&quot;环境安装&quot;&gt;&lt;/a&gt;环境安装&lt;/h2&gt;&lt;p&gt;为了加速，我们需要使用 GPU 来进行计算，因此需要安装基于 CUDA 的 pytorch。首先我们需要安装 &lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="自然语言处理" scheme="https://www.nosuchfield.com/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/"/>
+    
+    <category term="机器学习" scheme="https://www.nosuchfield.com/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ffmpeg 笔记</title>
+    <link href="https://www.nosuchfield.com/2024/06/18/ffmpeg-notes/"/>
+    <id>https://www.nosuchfield.com/2024/06/18/ffmpeg-notes/</id>
+    <published>2024-06-18T10:13:25.000Z</published>
+    <updated>2026-07-15T13:19:34.694Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h5 id=&quot;合并一个文件夹内的所有视频&quot;&gt;&lt;a href=&quot;#合并一个文件夹内的所有视频&quot; class=&quot;headerlink&quot; title=&quot;合并一个文件夹内的所有视频&quot;&gt;&lt;/a&gt;合并一个文件夹内的所有视频&lt;/h5&gt;&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span</summary>
+        
+      
+    
+    
+    
+    
+    <category term="视频编码" scheme="https://www.nosuchfield.com/tags/%E8%A7%86%E9%A2%91%E7%BC%96%E7%A0%81/"/>
+    
+    <category term="视频" scheme="https://www.nosuchfield.com/tags/%E8%A7%86%E9%A2%91/"/>
+    
+    <category term="ffmpeg" scheme="https://www.nosuchfield.com/tags/ffmpeg/"/>
+    
+    <category term="码率" scheme="https://www.nosuchfield.com/tags/%E7%A0%81%E7%8E%87/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何参与 Apache 顶级开源项目</title>
+    <link href="https://www.nosuchfield.com/2024/01/24/How-to-Participate-in-Apache-Top-Level-Projects/"/>
+    <id>https://www.nosuchfield.com/2024/01/24/How-to-Participate-in-Apache-Top-Level-Projects/</id>
+    <published>2024-01-24T11:27:14.000Z</published>
+    <updated>2026-07-15T13:19:34.680Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;我们在日常工作中经常会使用到很多的开源项目，开源也是一个在工作和学习中都离不开的内容。一般来说，开源项目可以选择直接开源，也可以选择捐赠给某些基金会，例如 &lt;a href=&quot;https://www.linuxfoundation.org/&quot;&gt;Linux Foundation&lt;/a&gt;、&lt;a href=&quot;https://www.cncf.io/&quot;&gt;CNCF&lt;/a&gt; 和 &lt;a href=&quot;https://www.apache.org/&quot;&gt;ASF&lt;/a&gt; 等等。以 ASF 为例，如果一个项目想要成为 &lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="APISIX" scheme="https://www.nosuchfield.com/tags/APISIX/"/>
+    
+    <category term="开源" scheme="https://www.nosuchfield.com/tags/%E5%BC%80%E6%BA%90/"/>
+    
+    <category term="apache" scheme="https://www.nosuchfield.com/tags/apache/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 frp 实现内网 ssh 穿透</title>
+    <link href="https://www.nosuchfield.com/2024/01/05/Implementing-ssh-network-penetration-with-frp/"/>
+    <id>https://www.nosuchfield.com/2024/01/05/Implementing-ssh-network-penetration-with-frp/</id>
+    <published>2024-01-05T22:00:22.000Z</published>
+    <updated>2026-07-15T13:19:34.681Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;最近需要远程访问一台虚拟机内的 Linux，因为虚拟机没有公网 IP，因此选择使用 frp 转发 ssh 流量的方式来实现远程访问。首先访问 &lt;a href=&quot;https://github.com/fatedier/frp/releases&quot;&gt;frp 的 release 页面&lt;/a&gt; 并根据操作系统和 CPU 下载相应的版本，之后解压得到&lt;code&gt;frpc&lt;/code&gt;和&lt;code&gt;frps&lt;/code&gt;文件。&lt;/p&gt;
+&lt;p&gt;frps 是服务端版本，它需要部署在一台拥有公网 IP</summary>
+        
+      
+    
+    
+    
+    
+    <category term="网络" scheme="https://www.nosuchfield.com/tags/%E7%BD%91%E7%BB%9C/"/>
+    
+    <category term="代理" scheme="https://www.nosuchfield.com/tags/%E4%BB%A3%E7%90%86/"/>
+    
+    <category term="ssh" scheme="https://www.nosuchfield.com/tags/ssh/"/>
+    
+    <category term="frp" scheme="https://www.nosuchfield.com/tags/frp/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>安装并使用 zsh</title>
+    <link href="https://www.nosuchfield.com/2023/10/18/Installation-and-use-of-zsh/"/>
+    <id>https://www.nosuchfield.com/2023/10/18/Installation-and-use-of-zsh/</id>
+    <published>2023-10-18T16:18:09.000Z</published>
+    <updated>2026-07-15T13:19:34.682Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;首先我们安装 zsh，并切换默认的 shell 为 zsh，之后重启进入 zsh&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo apt-get install zsh
+chsh -s /bin/zsh
+sudo shutdown -r now
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;之后我们安装 oh-my-zsh，因为网络的原因所以设置了代理&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;wget -e https_proxy=192.168.65.100:7890</summary>
+        
+      
+    
+    
+    
+    
+    <category term="shell" scheme="https://www.nosuchfield.com/tags/shell/"/>
+    
+    <category term="bash" scheme="https://www.nosuchfield.com/tags/bash/"/>
+    
+    <category term="zsh" scheme="https://www.nosuchfield.com/tags/zsh/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>APISIX 的使用</title>
+    <link href="https://www.nosuchfield.com/2023/10/12/APISIX-usage/"/>
+    <id>https://www.nosuchfield.com/2023/10/12/APISIX-usage/</id>
+    <published>2023-10-12T19:22:36.000Z</published>
+    <updated>2026-07-15T13:19:34.670Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;APISIX 是一款基于 Openresty 的动态、实时、高性能 API 网关，它提供了负载均衡、服务熔断等丰富的功能。&lt;/p&gt;
+&lt;h3 id=&quot;安装服务&quot;&gt;&lt;a href=&quot;#安装服务&quot; class=&quot;headerlink&quot; title=&quot;安装服务&quot;&gt;&lt;/a&gt;安装服务&lt;/h3&gt;&lt;p&gt;在&lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="APISIX" scheme="https://www.nosuchfield.com/tags/APISIX/"/>
+    
+    <category term="Lua" scheme="https://www.nosuchfield.com/tags/Lua/"/>
+    
+    <category term="网关" scheme="https://www.nosuchfield.com/tags/%E7%BD%91%E5%85%B3/"/>
+    
+    <category term="Nginx" scheme="https://www.nosuchfield.com/tags/Nginx/"/>
+    
+    <category term="运维" scheme="https://www.nosuchfield.com/tags/%E8%BF%90%E7%BB%B4/"/>
+    
+    <category term="Openresty" scheme="https://www.nosuchfield.com/tags/Openresty/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>自己动手实现一个可以运行在 JVM 上的编程语言</title>
+    <link href="https://www.nosuchfield.com/2023/09/06/Implementing-a-Programming-Language-Running-on-the-JVM/"/>
+    <id>https://www.nosuchfield.com/2023/09/06/Implementing-a-Programming-Language-Running-on-the-JVM/</id>
+    <published>2023-09-06T21:16:49.000Z</published>
+    <updated>2026-07-15T13:19:34.681Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;众所周知，JVM 虚拟机被设计为可以执行栈式指令的机器。因此任何一个语言只要编译之后得到的字节码符合 JVM 的标准，就可以在 JVM 上执行，例如 Kotlin、Groovy、Scala、Clojure。&lt;/p&gt;
+&lt;p&gt;我们自己设计一款语言，并命名为 Jinx，它支持类定义、变量定义、变量打印。它的语法解析逻辑如下&lt;/p&gt;
+&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span</summary>
+        
+      
+    
+    
+    
+    
+    <category term="编译原理" scheme="https://www.nosuchfield.com/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="编译器" scheme="https://www.nosuchfield.com/tags/%E7%BC%96%E8%AF%91%E5%99%A8/"/>
+    
+    <category term="虚拟机" scheme="https://www.nosuchfield.com/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/"/>
+    
+    <category term="JVM" scheme="https://www.nosuchfield.com/tags/JVM/"/>
+    
+    <category term="ANTLR4" scheme="https://www.nosuchfield.com/tags/ANTLR4/"/>
+    
+    <category term="字节码" scheme="https://www.nosuchfield.com/tags/%E5%AD%97%E8%8A%82%E7%A0%81/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 ANTLR4 格式化 JSON</title>
+    <link href="https://www.nosuchfield.com/2023/09/02/Formatting-JSON-with-ANTLR4/"/>
+    <id>https://www.nosuchfield.com/2023/09/02/Formatting-JSON-with-ANTLR4/</id>
+    <published>2023-09-02T21:11:04.000Z</published>
+    <updated>2026-07-15T13:19:34.678Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;JSON 由对象和数组组成，对象是一个 Key 和 Value 的关系映射，数组则是由多个 value 组成。对象使用大括号&lt;code&gt;&amp;#123;&amp;#125;&lt;/code&gt;表示，数组则使用中括号&lt;code&gt;[]&lt;/code&gt;表示。因此我们可以得到对象和数组的表达式&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;object: &amp;#39;&amp;#123;&amp;#39; &amp;#39;&amp;#125;&amp;#39; | &amp;#39;&amp;#123;&amp;#39; kv (&amp;#39;,&amp;#39; kv)* &amp;#39;&amp;#125;&amp;#39;;
+array: &amp;#39;[&amp;#39;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="词法分析" scheme="https://www.nosuchfield.com/tags/%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/"/>
+    
+    <category term="语法分析" scheme="https://www.nosuchfield.com/tags/%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90/"/>
+    
+    <category term="编译原理" scheme="https://www.nosuchfield.com/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="编译器" scheme="https://www.nosuchfield.com/tags/%E7%BC%96%E8%AF%91%E5%99%A8/"/>
+    
+    <category term="ANTLR" scheme="https://www.nosuchfield.com/tags/ANTLR/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ANTLR4 从入门到实践</title>
+    <link href="https://www.nosuchfield.com/2023/08/26/ANTLR4-from-Beginning-to-Practice/"/>
+    <id>https://www.nosuchfield.com/2023/08/26/ANTLR4-from-Beginning-to-Practice/</id>
+    <published>2023-08-26T23:11:20.000Z</published>
+    <updated>2026-07-15T13:19:34.669Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://www.antlr.org/&quot;&gt;ANTLR&lt;/a&gt;（ANother Tool for Language Recognition）是一个强大的解析器生成器，用于读取、处理、执行或翻译结构化文本或二进制文档。它被广泛用于构建语言、工具和框架。ANTLR 根据语法定义生成解析器，解析器可以构建和遍历解析树。&lt;/p&gt;
+&lt;h2 id=&quot;安装&quot;&gt;&lt;a href=&quot;#安装&quot; class=&quot;headerlink&quot; title=&quot;安装&quot;&gt;&lt;/a&gt;安装&lt;/h2&gt;&lt;p&gt;以 Linux 系统为例，我们首先 &lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="词法分析" scheme="https://www.nosuchfield.com/tags/%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/"/>
+    
+    <category term="语法分析" scheme="https://www.nosuchfield.com/tags/%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90/"/>
+    
+    <category term="编译原理" scheme="https://www.nosuchfield.com/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="编译器" scheme="https://www.nosuchfield.com/tags/%E7%BC%96%E8%AF%91%E5%99%A8/"/>
+    
+  </entry>
+  
+</feed>

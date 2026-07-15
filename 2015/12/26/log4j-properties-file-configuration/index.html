@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)"><link rel="preconnect" href="https://cloud.umami.is" crossorigin><script>(()=>{try{var e=localStorage.getItem("theme-pref")||"auto",t=window.matchMedia("(prefers-color-scheme: dark)"),a="auto"===e?t.matches?"dark":"light":e;document.documentElement.setAttribute("data-theme-pref",e),"dark"===a&&document.documentElement.setAttribute("data-theme","dark"),t.addEventListener&&t.addEventListener("change",function(e){"auto"===(localStorage.getItem("theme-pref")||"auto")&&(e.matches?document.documentElement.setAttribute("data-theme","dark"):document.documentElement.removeAttribute("data-theme"))})}catch(e){}})()</script><title>log4j.properties 文件的配置 - 侯锐的思考与分享</title><meta name="description" content="1.全局 log4j.rootLogger 的配置log4j.rootLogger 是用来配置 log4j 的全局配置的，一般可以写为： log4j.rootLogger = [ level ] , appenderName, appenderName, … 其中，level 表示的是日志记录优先级，分为 OFF、FA"><meta name="keywords" content="JavaWeb"><meta name="author" content="Raymond"><link rel="canonical" href="https://www.nosuchfield.com/2015/12/26/log4j-properties-file-configuration/"><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/favicon.png"><link rel="alternate" type="application/atom+xml" title="侯锐的思考与分享 Atom Feed" href="https://www.nosuchfield.com/atom.xml"><meta property="og:type" content="article"><meta property="og:title" content="log4j.properties 文件的配置"><meta property="og:description" content="1.全局 log4j.rootLogger 的配置log4j.rootLogger 是用来配置 log4j 的全局配置的，一般可以写为： log4j.rootLogger = [ level ] , appenderName, appenderName, … 其中，level 表示的是日志记录优先级，分为 OFF、FA"><meta property="og:url" content="https://www.nosuchfield.com/2015/12/26/log4j-properties-file-configuration/"><meta property="og:site_name" content="侯锐的思考与分享"><meta property="og:image" content="https://www.nosuchfield.com/favicon.png"><meta property="og:locale" content="zh_CN"><meta property="article:author" content="Raymond"><meta property="article:published_time" content="2015-12-26T11:22:53.000Z"><meta property="article:modified_time" content="2026-07-15T13:19:34.694Z"><meta property="article:tag" content="JavaWeb"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="log4j.properties 文件的配置"><meta name="twitter:description" content="1.全局 log4j.rootLogger 的配置log4j.rootLogger 是用来配置 log4j 的全局配置的，一般可以写为： log4j.rootLogger = [ level ] , appenderName, appenderName, … 其中，level 表示的是日志记录优先级，分为 OFF、FA"><meta name="twitter:image" content="https://www.nosuchfield.com/favicon.png"><script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.nosuchfield.com/2015/12/26/log4j-properties-file-configuration/"
+    },
+    "headline": "log4j.properties 文件的配置",
+    "description": "1.全局 log4j.rootLogger 的配置log4j.rootLogger 是用来配置 log4j 的全局配置的，一般可以写为： log4j.rootLogger = [ level ] , appenderName, appenderName, … 其中，level 表示的是日志记录优先级，分为 OFF、FA",
+    "image": "https://www.nosuchfield.com/favicon.png",
+    "author": {
+      "@type": "Person",
+      "name": "Raymond"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "侯锐的思考与分享",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.nosuchfield.com/favicon.png"
+      }
+    },
+    "datePublished": "2015-12-26T11:22:53.000Z",
+    "dateModified": "2026-07-15T13:19:34.694Z"
+  }</script><link rel="stylesheet" href="/css/style.css?v=656ecda3"><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><meta name="generator" content="Hexo 6.3.0"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul><button class="theme-toggle" id="theme-toggle" aria-label="切换主题模式"><svg class="icon-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3 a9 9 0 0 1 0 18 z" fill="currentColor" stroke="none"/></svg> <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg> <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></nav></header><main><article class="post"><div class="post-title"><h1 class="article-title">log4j.properties 文件的配置</h1></div><div class="post-meta"><span class="post-time">2015-12-26</span> <span class="reading-time">· 约 11 分钟阅读</span></div><div class="post-content"><h4 id="1-全局-log4j-rootLogger-的配置"><a href="#1-全局-log4j-rootLogger-的配置" class="headerlink" title="1.全局 log4j.rootLogger 的配置"></a>1.全局 log4j.rootLogger 的配置</h4><p>log4j.rootLogger 是用来配置 log4j 的全局配置的，一般可以写为：</p><pre><code>log4j.rootLogger = [ level ] , appenderName, appenderName, …
+</code></pre><p>其中，level 表示的是日志记录优先级，分为 OFF、FATAL、ERROR、WARN、INFO、DEBUG、ALL 或者自定义的级别。log4j 建议只使用四个级别，优先级从高到低分别是 ERROR、WARN、INFO、DEBUG。当定义了一个级别时，低于该级别的优先级就被忽略。例如，如果定义级别为 INFO，那么 DEBUG 级别的日志信息就会被忽略了。</p><p><strong>appenderName 是在 Appender 配置中使用的名称信息，一个 lo4j.rootLogger 中可以定义多个 appenderName ，然后通过他们的不同的名字来在 Appender 中分别使用。</strong></p><p>例如，下面这个语句表示定义了一个优先级别为 DEBUG、有 5 个输出位置的 log4j：</p><pre><code>log4j.rootLogger = debug,stdout,D,I,W,E
+</code></pre><h4 id="2-Appender-的配置"><a href="#2-Appender-的配置" class="headerlink" title="2.Appender 的配置"></a>2.Appender 的配置</h4><ol><li><p>配置日志的输出方式</p><p>log4j 的输出方式的配置有以下几种类型，他用来控制 log 的输出位置：</p><pre><code>org.apache.log4j.ConsoleAppender（控制台）
+org.apache.log4j.FileAppender（文件）
+org.apache.log4j.DailyRollingFileAppender（每天产生一个日志文件）
+org.apache.log4j.RollingFileAppender（文件大小到达指定尺寸的时候产生一个新的文件）
+org.apache.log4j.WriterAppender（将日志信息以流格式发送到任意指定的地方）
+</code></pre><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName = xxx
+</code></pre></li><li><p>配置日志信息的格式（布局）</p><p>log4j 的 layout 有以下几种的配置方式，他用来控制 log 的输出格式：</p><pre><code>org.apache.log4j.HTMLLayout（以 HTML 表格形式布局），  
+org.apache.log4j.PatternLayout（可以灵活地指定布局模式），  
+org.apache.log4j.SimpleLayout（包含日志信息的级别和信息字符串），  
+org.apache.log4j.TTCCLayout（包含日志产生的时间、线程、类别等等信息）
+</code></pre><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.layout = xxx
+</code></pre><p>如果我们使用了<strong>org.apache.log4j.PatternLayout</strong>这个配置，那我们就可以使用类似于 C 的格式化输出的方式来更灵活的控制我们的 log 的输出格式，格式化输出命令如下所示：</p><pre><code>%m 输出代码中指定的消息
+%p 输出优先级，即 DEBUG，INFO，WARN，ERROR，FATAL  
+%r 输出自应用启动到输出该 log 信息耗费的毫秒数  
+%c 输出所属的类目，通常就是所在类的全名  
+%t 输出产生该日志事件的线程名
+%n 输出一个回车换行符，Windows 平台为“\r\n”，Unix 平台为“\n”
+%d 输出日志时间点的日期或时间，默认格式为 ISO8601，也可以在其后指定格式，比如：%d&#123;yyy MMM dd HH:mm:ss,SSS&#125;
+%l 输出日志事件的发生位置，包括类目名、发生的线程，以及在代码中的行数
+</code></pre><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.layout.ConversionPattern = %d&#123;yyyy-MM-dd HH:mm:ss,SSS&#125; method:%l%n%m%n
+</code></pre></li><li><p>其他的一些属性配置信息</p><p><strong>Threshold 属性</strong>，用来控制输出日志的优先级别，同 log4j.rootLogger 中的 level 类似，但是 Threshold 只对当前的 appender 有效</p><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.Threshold = DEBUG
+</code></pre><p><strong>File 和 Append 属性</strong>，当我们要把日志输出到文件的时候，需要用这两个属性来配置日志的输出位置和是否覆盖原来文件中日志（显然一般是不覆盖，而是在后面追加新的日志的）</p><p>使用方式如下所示：</p><pre><code>log4j.appender.appenderName.File = $&#123;webapp.root&#125;/WEB-INF/logs/log.log
+log4j.appender.appenderName.Append = true
+</code></pre><p><strong>把日志输出到系统的标准输出上</strong>：</p><pre><code> log4j.appender.appenderName.Target = System.out
+</code></pre></li></ol><h4 id="3-一个典型的例子"><a href="#3-一个典型的例子" class="headerlink" title="3.一个典型的例子"></a>3.一个典型的例子</h4><pre><code>### 定义了 log4j.rootLogger，优先级为 debug，即包含了所有的优先级日志 ###
+### 定义了三个 Appender，分别为 stdout, D, E ###
+log4j.rootLogger = debug,stdout,D,E
+
+### 设置 stdout，它实现了控制台日志输出 ###
+log4j.appender.stdout = org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target = System.out
+### 使用了自定义的布局模式 ###
+log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
+### 自定义了输出模式 ###
+log4j.appender.stdout.layout.ConversionPattern = [%-5p] %d&#123;yyyy-MM-dd HH:mm:ss,SSS&#125; method:%l%n%m%n
+
+### 设置 D，它实现了把日志输出到文件，优先级为 DEBUG ###
+log4j.appender.D = org.apache.log4j.DailyRollingFileAppender
+### 把日志输出到指定的文件之中 ###
+log4j.appender.D.File = $&#123;webapp.root&#125;/WEB-INF/logs/log.log
+### 在现有的日志后面追加新的日志 ###
+log4j.appender.D.Append = true
+log4j.appender.D.Threshold = DEBUG
+log4j.appender.D.layout = org.apache.log4j.PatternLayout
+log4j.appender.D.layout.ConversionPattern = %-d&#123;yyyy-MM-dd HH:mm:ss&#125;  [ %t:%r ] - [ %p ]  %m%n
+
+### 输出 ERROR 以上级别的日志到 logs/error.log ###
+log4j.appender.E = org.apache.log4j.DailyRollingFileAppender
+log4j.appender.E.File = $&#123;webapp.root&#125;/WEB-INF/logs/error.log
+log4j.appender.E.Append = true
+log4j.appender.E.Threshold = ERROR
+log4j.appender.E.layout = org.apache.log4j.PatternLayout
+log4j.appender.E.layout.ConversionPattern = %-d&#123;yyyy-MM-dd HH:mm:ss&#125;  [ %t:%r ] - [ %p ]  %m
+</code></pre><p>关于如何搭建 log4j 的使用环境，可以参阅 <a href="/2015/12/26/build-a-log4j-use-environment/">搭建一个 log4j 使用环境</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="log4j.properties 文件的配置">https://www.nosuchfield.com/2015/12/26/log4j-properties-file-configuration/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script defer src="/js/code-enhancer.js?v=8c788101"></script><script defer src="/js/scroll-spy.js?v=85c20044"></script><script>document.addEventListener("DOMContentLoaded",function(){var o=document.querySelector(".back-to-top");o&&o.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"})})})</script><div class="related-posts"><h3>相关文章</h3><ul><li><a href="https://www.nosuchfield.com/2017/10/15/Spring-Boot-Starters/">Spring Boot Starters</a></li><li><a href="https://www.nosuchfield.com/2016/10/11/build-a-tomcat-service-by-docker/">使用 Docker 来构建一个 Tomcat 服务</a></li><li><a href="https://www.nosuchfield.com/2016/03/29/gets-the-servlet&#39;s-response-and-modifies-its-contents/">获取 Servlet 的响应并修改其内容</a></li><li><a href="https://www.nosuchfield.com/2016/01/28/URL-encode-and-URL-decode/">URL encode 与 URL decode</a></li><li><a href="https://www.nosuchfield.com/2016/01/05/set-the-website-icon-in-JavaWeb/">在 JavaWeb 中设置网站图标</a></li></ul></div><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/JavaWeb/" rel="tag">JavaWeb</a></li></ul><button type="button" class="top back-to-top">返回顶部</button></div></article></main><script>(()=>{var e,a,m=document.getElementById("theme-toggle");function r(t){t="当前："+a[t]+"，点击切换";m.setAttribute("title",t),m.setAttribute("aria-label",t)}m&&(e={auto:"light",light:"dark",dark:"auto"},a={auto:"自动（跟随系统）",light:"浅色模式",dark:"深色模式"},r(document.documentElement.getAttribute("data-theme-pref")||"auto"),m.addEventListener("click",function(){var t=document.documentElement.getAttribute("data-theme-pref")||"auto",t=e[t];document.documentElement.setAttribute("data-theme-pref",t);try{"auto"===t?localStorage.removeItem("theme-pref"):localStorage.setItem("theme-pref",t)}catch(t){}"dark"===("auto"===t?window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light":t)?document.documentElement.setAttribute("data-theme","dark"):document.documentElement.removeAttribute("data-theme"),r(t)}))})()</script><script src="/js/instant-page.js?v=e8cc2683" type="module" defer></script><footer><span>&copy; 2015 - 2026</span> <span class="author">Raymond</span> <span class="footer-right"><span class="upyun">本网站由<a href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral" target="_blank" rel="noopener"> <img loading="lazy" decoding="async" src="/images/others/upyun.png" alt="又拍云" width="39" height="20"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank" rel="noopener">GitHub</a></span></footer></div></body></html>

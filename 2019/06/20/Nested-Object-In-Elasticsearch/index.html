@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)"><link rel="preconnect" href="https://cloud.umami.is" crossorigin><script>(()=>{try{var e=localStorage.getItem("theme-pref")||"auto",t=window.matchMedia("(prefers-color-scheme: dark)"),a="auto"===e?t.matches?"dark":"light":e;document.documentElement.setAttribute("data-theme-pref",e),"dark"===a&&document.documentElement.setAttribute("data-theme","dark"),t.addEventListener&&t.addEventListener("change",function(e){"auto"===(localStorage.getItem("theme-pref")||"auto")&&(e.matches?document.documentElement.setAttribute("data-theme","dark"):document.documentElement.removeAttribute("data-theme"))})}catch(e){}})()</script><title>ES 中的 nested 对象 - 侯锐的思考与分享</title><meta name="description" content="我们知道 ES 的一个索引会对应着多个分片和副本，而每一个分片或副本就是一个完整的 Lucene 索引。 ES 索引 -&amp;gt; ES 分片 -&amp;gt; Lucene 索引 Elasticsearch 在索引数据时，会对输入的数据进行解析，得到一个个单独的字段。ES 本身还会添加一些额外的字段，最后把这些字段作为一个文"><meta name="keywords" content="Elasticsearch,搜索引擎"><meta name="author" content="Raymond"><link rel="canonical" href="https://www.nosuchfield.com/2019/06/20/Nested-Object-In-Elasticsearch/"><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/favicon.png"><link rel="alternate" type="application/atom+xml" title="侯锐的思考与分享 Atom Feed" href="https://www.nosuchfield.com/atom.xml"><meta property="og:type" content="article"><meta property="og:title" content="ES 中的 nested 对象"><meta property="og:description" content="我们知道 ES 的一个索引会对应着多个分片和副本，而每一个分片或副本就是一个完整的 Lucene 索引。 ES 索引 -&amp;gt; ES 分片 -&amp;gt; Lucene 索引 Elasticsearch 在索引数据时，会对输入的数据进行解析，得到一个个单独的字段。ES 本身还会添加一些额外的字段，最后把这些字段作为一个文"><meta property="og:url" content="https://www.nosuchfield.com/2019/06/20/Nested-Object-In-Elasticsearch/"><meta property="og:site_name" content="侯锐的思考与分享"><meta property="og:image" content="https://www.nosuchfield.com/favicon.png"><meta property="og:locale" content="zh_CN"><meta property="article:author" content="Raymond"><meta property="article:published_time" content="2019-06-20T19:30:43.000Z"><meta property="article:modified_time" content="2026-07-15T13:19:34.685Z"><meta property="article:tag" content="Elasticsearch"><meta property="article:tag" content="搜索引擎"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ES 中的 nested 对象"><meta name="twitter:description" content="我们知道 ES 的一个索引会对应着多个分片和副本，而每一个分片或副本就是一个完整的 Lucene 索引。 ES 索引 -&amp;gt; ES 分片 -&amp;gt; Lucene 索引 Elasticsearch 在索引数据时，会对输入的数据进行解析，得到一个个单独的字段。ES 本身还会添加一些额外的字段，最后把这些字段作为一个文"><meta name="twitter:image" content="https://www.nosuchfield.com/favicon.png"><script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.nosuchfield.com/2019/06/20/Nested-Object-In-Elasticsearch/"
+    },
+    "headline": "ES 中的 nested 对象",
+    "description": "我们知道 ES 的一个索引会对应着多个分片和副本，而每一个分片或副本就是一个完整的 Lucene 索引。 ES 索引 -&gt; ES 分片 -&gt; Lucene 索引 Elasticsearch 在索引数据时，会对输入的数据进行解析，得到一个个单独的字段。ES 本身还会添加一些额外的字段，最后把这些字段作为一个文",
+    "image": "https://www.nosuchfield.com/favicon.png",
+    "author": {
+      "@type": "Person",
+      "name": "Raymond"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "侯锐的思考与分享",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.nosuchfield.com/favicon.png"
+      }
+    },
+    "datePublished": "2019-06-20T19:30:43.000Z",
+    "dateModified": "2026-07-15T13:19:34.685Z"
+  }</script><link rel="stylesheet" href="/css/style.css?v=656ecda3"><script defer src="https://cloud.umami.is/script.js" data-website-id="267e4aaf-8cb5-464d-b16c-89e66283e505"></script><meta name="generator" content="Hexo 6.3.0"></head><body><div class="container"><header class="header"><div class="blog-title"><a href="/" class="logo">侯锐的思考与分享</a><div class="subtitle"></div></div><nav class="navbar"><ul class="menu"><li class="menu-item"><a href="/" class="menu-item-link" data-no-instant>主页</a></li><li class="menu-item"><a href="/atom.xml" class="menu-item-link" data-no-instant>订阅</a></li><li class="menu-item"><a href="/search" class="menu-item-link" data-no-instant>搜索</a></li></ul><button class="theme-toggle" id="theme-toggle" aria-label="切换主题模式"><svg class="icon-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3 a9 9 0 0 1 0 18 z" fill="currentColor" stroke="none"/></svg> <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg> <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></nav></header><main><article class="post"><div class="post-title"><h1 class="article-title">ES 中的 nested 对象</h1></div><div class="post-meta"><span class="post-time">2019-06-20</span> <span class="reading-time">· 约 7 分钟阅读</span></div><div class="post-content"><p>我们知道 ES 的一个索引会对应着多个分片和副本，而每一个分片或副本就是一个完整的 Lucene 索引。</p><pre><code>ES 索引 -&gt; ES 分片 -&gt; Lucene 索引
+</code></pre><p>Elasticsearch 在索引数据时，会对输入的数据进行解析，得到一个个单独的字段。ES 本身还会添加一些额外的字段，最后把这些字段作为一个文档保存到 Lucene 中，ES 自身额外添加的 field：<code>_uid</code>, <code>_source</code>, <code>_type</code>, <code>_version</code>。</p><p>从原始输入中解析出相应字段的源码 <a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch/blob/1.5/src/main/java/org/elasticsearch/index/mapper/object/ObjectMapper.java#L434">在此</a>，在这里我们看到 nested 会把当前的 document 作为自己的 parent，nested 字段会使用其 parentDoc 的_uid 作为自己的_uid，这就意味着 nested 字段是和其 parent 文档拥有一样的_uid 的。</p><p>在上一步解析出了数据中的字段之后，ES 把所有解析得到的字段存放到<code>ParsedDocument</code>中，具体源码 <a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch/blob/1.5/src/main/java/org/elasticsearch/index/mapper/DocumentMapper.java#L593">在此</a>。</p><p>最终 ES 把所有的字段存储到 Lucene 中，一个文档中所有字段的 _uid 都是一样的，所有的字段在存储时都使用这个相同的 _uid。ES 根据版本决定这个数据是更新还是新增，版本比较以及数据写入到 Lucene 的源码 <a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch/blob/1.5/src/main/java/org/elasticsearch/index/engine/InternalEngine.java#L425">在此</a>。ES 会给每个 nested 的数据创建一个独立的 Lucene document，所以一次写入一共有 nested + 1 个文档数量。如果一个字段不是 nested，就普通的解析一下变成单个字段然后存放在主 document 中进行保存。</p><p>例如如下的文本</p><pre><code>&#123;
+    &quot;city&quot;: &quot;Nanjing&quot;,
+    &quot;comments&quot;: [
+        &#123;
+            &quot;name&quot;: &quot;Mike&quot;,
+            &quot;comment&quot;: &quot;Great&quot;
+        &#125;,
+        &#123;
+            &quot;name&quot;: &quot;Mark&quot;,
+            &quot;comment&quot;: &quot;Interesting&quot;
+        &#125;
+    ]
+&#125;
+</code></pre><p>如果 comments 是一个普通的字段，那么 ES 通过解析操作我们可以得到如下的字段</p><pre><code>city: Nanjing
+comments.name: Mike
+comments.comment: Great
+comments.name: Mark
+comments.comment: Interesting
+</code></pre><p>这些字段存放在一个文档中，之后该文档被保存到 Lucene。</p><p>这样保存的一个问题在于 comments 的 name 和 comment 字段之间失去了关联，如下的一个文本将会和上面的文本生成完全一样的字段：</p><pre><code>&#123;
+    &quot;city&quot;: &quot;Nanjing&quot;,
+    &quot;comments&quot;: [
+        &#123;
+            &quot;name&quot;: &quot;Mark&quot;,
+            &quot;comment&quot;: &quot;Great&quot;
+        &#125;,
+        &#123;
+            &quot;name&quot;: &quot;Mike&quot;,
+            &quot;comment&quot;: &quot;Interesting&quot;
+        &#125;
+    ]
+&#125;
+</code></pre><p>这个文本生成的字段如下</p><pre><code>city: Nanjing
+comments.name: Mark
+comments.comment: Great
+comments.name: Mike
+comments.comment: Interesting
+</code></pre><p>这里生成的字段和上面的文本完全一致，所以如果我们想要查询 comments.name &#x3D;&#x3D; Mike &amp;&amp; comments.comment &#x3D;&#x3D; Great 的结果，那么这两条数据都是符合要求的，但这可能不是我们想要的结果，我们也许只想要查询第一条数据而已。</p><p>但是如果 comments 是一个 nested 类型的字段，那么 ES 就会把这段文本解析为三个文档，分别为</p><pre><code>// document1
+city: Nanjing
+// document2
+comments.name: Mike
+comments.comment: Great
+// docuemtn3
+comments.name: Mark
+comments.comment: Interesting
+</code></pre><p>这段文本被拆分为三个 document 保存到 Lucene 中，这样一来 comments 的 name 和 comment 就产生了关联，此时进行查询 comments.name &#x3D;&#x3D; Mike &amp;&amp; comments.comment &#x3D;&#x3D; Great，那么就只有该条数据才是符合要求的。</p><p>参考：<br><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/nested-objects.html">Nested Objects</a><br><a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch">elasticsearch</a></p></div><div class="post-copyright"><div><strong>本文链接：</strong> <span title="ES 中的 nested 对象">https://www.nosuchfield.com/2019/06/20/Nested-Object-In-Elasticsearch/</span></div><div><strong>版权声明： </strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处！</div></div><style>summary{cursor:pointer;margin-bottom:10px}summary:focus{outline:0}</style><script defer src="/js/code-enhancer.js?v=8c788101"></script><script defer src="/js/scroll-spy.js?v=85c20044"></script><script>document.addEventListener("DOMContentLoaded",function(){var o=document.querySelector(".back-to-top");o&&o.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"})})})</script><div class="related-posts"><h3>相关文章</h3><ul><li><a href="https://www.nosuchfield.com/2019/03/18/How-Elasticsearch-elected-the-master/">Elasticsearch 是如何选举出 master 的</a></li><li><a href="https://www.nosuchfield.com/2018/05/03/Building-Reasonable-ES-Indexing-Strategy/">构建合理的 ES 索引策略</a></li><li><a href="https://www.nosuchfield.com/2026/07/15/The-Evolution-of-Big-Data-From-Hive-GFS-to-Raft/">大数据技术的演进：从 Hive、GFS 到 Raft</a></li><li><a href="https://www.nosuchfield.com/2025/12/27/Using-Elasticsearch-to-Analyze-Tencent-Cloud-EO-Logs/">使用 Elasticsearch 分析腾讯云 EO 日志</a></li><li><a href="https://www.nosuchfield.com/2020/10/14/Elasticsearch-adding-nodes-raises-CircuitBreakingException-error/">Elasticsearch 新增节点引发 CircuitBreakingException 错误</a></li></ul></div><div class="post-footer"><ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/" rel="tag">搜索引擎</a></li></ul><button type="button" class="top back-to-top">返回顶部</button></div></article></main><script>(()=>{var e,a,m=document.getElementById("theme-toggle");function r(t){t="当前："+a[t]+"，点击切换";m.setAttribute("title",t),m.setAttribute("aria-label",t)}m&&(e={auto:"light",light:"dark",dark:"auto"},a={auto:"自动（跟随系统）",light:"浅色模式",dark:"深色模式"},r(document.documentElement.getAttribute("data-theme-pref")||"auto"),m.addEventListener("click",function(){var t=document.documentElement.getAttribute("data-theme-pref")||"auto",t=e[t];document.documentElement.setAttribute("data-theme-pref",t);try{"auto"===t?localStorage.removeItem("theme-pref"):localStorage.setItem("theme-pref",t)}catch(t){}"dark"===("auto"===t?window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light":t)?document.documentElement.setAttribute("data-theme","dark"):document.documentElement.removeAttribute("data-theme"),r(t)}))})()</script><script src="/js/instant-page.js?v=e8cc2683" type="module" defer></script><footer><span>&copy; 2015 - 2026</span> <span class="author">Raymond</span> <span class="footer-right"><span class="upyun">本网站由<a href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral" target="_blank" rel="noopener"> <img loading="lazy" decoding="async" src="/images/others/upyun.png" alt="又拍云" width="39" height="20"></a>提供CDN加速&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a class="filing" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">苏ICP备15057335号</a> <a class="github" href="https://github.com/RitterHou" target="_blank" rel="noopener">GitHub</a></span></footer></div></body></html>
